@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGNAL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0d0d0d;
+  --surface:  #111113;
+  --surface2: #161618;
+  --surface3: #1c1c1f;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --text:     #f0f0f2;
+  --text2:    #a0a0b0;
+  --text3:    #606070;
+  --accent:   #ffffff;
+  --green:    #3ecf8e;
+  --red:      #f87171;
+  --amber:    #f59e0b;
+  --blue:     #60a5fa;
+  --purple:   #a78bfa;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Inter', sans-serif;
+  --r:        6px;
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+/* ── LAYOUT ── */
+.app { display: grid; grid-template-rows: 44px 1fr; grid-template-columns: 200px 1fr 320px; height: 100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  grid-column: 1 / -1;
+  display: flex; align-items: center;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 14px; gap: 0;
+}
+.logo {
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.08em; color: var(--text);
+  padding-right: 14px;
+  border-right: 1px solid var(--border);
+  margin-right: 14px;
+  white-space: nowrap;
+}
+.logo em { color: var(--text3); font-style: normal; }
+
+.ticker-wrap { flex: 1; overflow: hidden; height: 100%; display: flex; align-items: center; mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent); }
+.ticker-track { display: flex; gap: 0; white-space: nowrap; animation: ticker 80s linear infinite; }
+.ticker-track:hover { animation-play-state: paused; }
+@keyframes ticker { 0%{ transform: translateX(0); } 100%{ transform: translateX(-50%); } }
+.t-item {
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 14px; height: 44px; cursor: pointer;
+  border-right: 1px solid var(--border);
+  transition: background .1s;
+}
+.t-item:hover { background: var(--surface2); }
+.t-sym { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text2); }
+.t-val { font-family: var(--mono); font-size: 11px; color: var(--text); }
+.t-chg { font-family: var(--mono); font-size: 10px; }
+.t-chg.up { color: var(--green); }
+.t-chg.dn { color: var(--red); }
+
+.topbar-right { display: flex; align-items: center; gap: 8px; padding-left: 14px; border-left: 1px solid var(--border); }
+.status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 3s infinite; }
+@keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+.status-txt { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+}
+.sidebar::-webkit-scrollbar { width: 0; }
+
+.asset-group { padding: 16px 0 8px; }
+.group-label {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text3); padding: 0 12px 6px;
+}
+.asset-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 12px; cursor: pointer; transition: background .1s;
+  border-left: 2px solid transparent;
+  gap: 8px;
+}
+.asset-row:hover { background: var(--surface2); }
+.asset-row.active { background: var(--surface3); border-left-color: var(--text); }
+.asset-row.active .ar-sym { color: var(--text); }
+.ar-left { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.ar-sym { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text2); }
+.ar-name { font-size: 10px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ar-right { text-align: right; flex-shrink: 0; }
+.ar-price { font-family: var(--mono); font-size: 11px; color: var(--text); }
+.ar-chg { font-family: var(--mono); font-size: 10px; }
+.ar-chg.up { color: var(--green); }
+.ar-chg.dn { color: var(--red); }
+.ar-chg.flat { color: var(--text3); }
+
+.sidebar-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* ── CHART AREA ── */
+.chart-area {
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+.chart-header {
+  display: flex; align-items: center;
+  padding: 10px 16px; gap: 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface); flex-shrink: 0;
+}
+.ch-sym { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--text); }
+.ch-name { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.ch-price-block { margin-left: auto; text-align: right; }
+.ch-price { font-family: var(--mono); font-size: 20px; font-weight: 400; color: var(--text); }
+.ch-chg { font-family: var(--mono); font-size: 11px; margin-top: 2px; }
+.ch-chg.up { color: var(--green); }
+.ch-chg.dn { color: var(--red); }
+.ch-meta { display: flex; gap: 16px; align-items: center; }
+.ch-badge {
+  font-family: var(--mono); font-size: 10px; padding: 2px 7px;
+  border-radius: 3px; border: 1px solid var(--border2); color: var(--text3);
+}
+
+.chart-frame { flex: 1; overflow: hidden; }
+.chart-frame iframe { width: 100%; height: 100%; border: none; display: block; }
+
+/* ── NEWS PANEL ── */
+.news-panel {
+  background: var(--surface);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.np-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.np-title { font-size: 11px; font-weight: 500; color: var(--text2); letter-spacing: 0.04em; }
+.np-count { font-family: var(--mono); font-size: 10px; color: var(--text3); background: var(--surface3); padding: 1px 6px; border-radius: 3px; }
+
+/* ── AI BOX ── */
+.ai-card {
+  margin: 10px 12px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface2);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.ai-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 11px;
+  border-bottom: 1px solid var(--border);
+}
+.ai-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.06em; }
+.ai-badge {
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  padding: 1px 6px; border-radius: 3px;
+}
+.ai-badge.bullish { color: var(--green); background: rgba(62,207,142,.1); }
+.ai-badge.bearish { color: var(--red); background: rgba(248,113,113,.1); }
+.ai-badge.neutral { color: var(--amber); background: rgba(245,158,11,.1); }
+.ai-badge.loading { color: var(--text3); background: var(--surface3); }
+.ai-body {
+  padding: 10px 11px; font-size: 11.5px; line-height: 1.7;
+  color: var(--text2); max-height: 110px; overflow-y: auto;
+}
+.ai-body::-webkit-scrollbar { width: 0; }
+
+/* ── DOTS LOADER ── */
+.dots { display: inline-flex; gap: 3px; }
+.dots span { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); animation: dotpulse 1.2s infinite; }
+.dots span:nth-child(2) { animation-delay: .2s; }
+.dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes dotpulse { 0%,80%,100%{ opacity:.2; } 40%{ opacity:1; } }
+
+/* ── NEWS FEED ── */
+.news-feed { flex: 1; overflow-y: auto; }
+.news-feed::-webkit-scrollbar { width: 3px; }
+.news-feed::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.news-item {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .1s;
+}
+.news-item:hover { background: var(--surface2); }
+.news-item:hover .ni-summary { display: block; }
+.ni-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.ni-source { font-size: 10px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+.ni-age { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.ni-headline { font-size: 12px; line-height: 1.55; color: var(--text); }
+.ni-summary { display: none; font-size: 11px; color: var(--text2); line-height: 1.6; margin-top: 5px; }
+
+.empty-feed { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 160px; gap: 8px; color: var(--text3); font-size: 12px; }
+
+/* ── SEARCH BAR ── */
+.news-search-wrap { padding: 8px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.news-search {
+  width: 100%; background: var(--surface3); border: 1px solid var(--border);
+  border-radius: 4px; padding: 5px 10px; color: var(--text); font-family: var(--sans);
+  font-size: 11px; outline: none; transition: border-color .15s;
+}
+.news-search:focus { border-color: var(--border2); }
+.news-search::placeholder { color: var(--text3); }
+
+/* ── ASSET TYPE COLORS ── */
+[data-type="commodity"] .ar-sym { color: var(--amber); }
+[data-type="commodity"].active .ar-sym { color: var(--amber); }
+[data-type="crypto"] .ar-sym { color: var(--blue); }
+[data-type="crypto"].active .ar-sym { color: var(--blue); }
+[data-type="equity"] .ar-sym { color: var(--text2); }
+[data-type="equity"].active .ar-sym { color: var(--text); }
+[data-type="eu-equity"] .ar-sym { color: var(--purple); }
+[data-type="eu-equity"].active .ar-sym { color: var(--purple); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">SIGNAL <em>/ markets</em></div>
+  <div class="ticker-wrap"><div class="ticker-track" id="tickerTrack">
+    <!-- populated by JS -->
+  </div></div>
+  <div class="topbar-right">
+    <div class="status-dot"></div>
+    <span class="status-txt">LIVE</span>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+  <!-- COMMODITIES -->
+  <div class="asset-group">
+    <div class="group-label">Commodities</div>
+    <div class="asset-row active" data-type="commodity" data-sym="USOIL" data-name="WTI Crude Oil" data-tv="TVC:USOIL" data-fhmap="OANDA:WTICOUSD" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">WTI</span><span class="ar-name">Crude Oil</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-USOIL">—</div><div class="ar-chg flat" id="c-USOIL">—</div></div>
+    </div>
+    <div class="asset-row" data-type="commodity" data-sym="BRENT" data-name="Brent Crude" data-tv="TVC:UKOIL" data-fhmap="OANDA:BCOUSD" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">BRENT</span><span class="ar-name">Brent Crude</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-BRENT">—</div><div class="ar-chg flat" id="c-BRENT">—</div></div>
+    </div>
+    <div class="asset-row" data-type="commodity" data-sym="GOLD" data-name="Gold Spot" data-tv="TVC:GOLD" data-fhmap="OANDA:XAUUSD" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">GOLD</span><span class="ar-name">Gold Spot</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-GOLD">—</div><div class="ar-chg flat" id="c-GOLD">—</div></div>
+    </div>
+    <div class="asset-row" data-type="commodity" data-sym="SILVER" data-name="Silver Spot" data-tv="TVC:SILVER" data-fhmap="OANDA:XAGUSD" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">SILVER</span><span class="ar-name">Silver Spot</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-SILVER">—</div><div class="ar-chg flat" id="c-SILVER">—</div></div>
+    </div>
+    <div class="asset-row" data-type="commodity" data-sym="PLATINUM" data-name="Platinum" data-tv="TVC:PLATINUM" data-fhmap="OANDA:XPTUSD" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">PLAT</span><span class="ar-name">Platinum</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-PLATINUM">—</div><div class="ar-chg flat" id="c-PLATINUM">—</div></div>
+    </div>
+    <div class="asset-row" data-type="commodity" data-sym="COPPER" data-name="Copper" data-tv="TVC:COPPER" data-fhmap="OANDA:XCUUSD" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">COPPER</span><span class="ar-name">Copper</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-COPPER">—</div><div class="ar-chg flat" id="c-COPPER">—</div></div>
+    </div>
+    <div class="asset-row" data-type="commodity" data-sym="NATGAS" data-name="Natural Gas" data-tv="TVC:NATURALGAS" data-fhmap="OANDA:NATGASUSD" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">GAS</span><span class="ar-name">Natural Gas</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-NATGAS">—</div><div class="ar-chg flat" id="c-NATGAS">—</div></div>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- CRYPTO -->
+  <div class="asset-group">
+    <div class="group-label">Crypto</div>
+    <div class="asset-row" data-type="crypto" data-sym="BTCUSD" data-name="Bitcoin" data-tv="BINANCE:BTCUSDT" data-fhmap="BINANCE:BTCUSDT" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">BTC</span><span class="ar-name">Bitcoin</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-BTCUSD">—</div><div class="ar-chg flat" id="c-BTCUSD">—</div></div>
+    </div>
+    <div class="asset-row" data-type="crypto" data-sym="ETHUSD" data-name="Ethereum" data-tv="BINANCE:ETHUSDT" data-fhmap="BINANCE:ETHUSDT" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">ETH</span><span class="ar-name">Ethereum</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-ETHUSD">—</div><div class="ar-chg flat" id="c-ETHUSD">—</div></div>
+    </div>
+    <div class="asset-row" data-type="crypto" data-sym="SOLUSD" data-name="Solana" data-tv="BINANCE:SOLUSDT" data-fhmap="BINANCE:SOLUSDT" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">SOL</span><span class="ar-name">Solana</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-SOLUSD">—</div><div class="ar-chg flat" id="c-SOLUSD">—</div></div>
+    </div>
+    <div class="asset-row" data-type="crypto" data-sym="XRPUSD" data-name="XRP" data-tv="BINANCE:XRPUSDT" data-fhmap="BINANCE:XRPUSDT" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">XRP</span><span class="ar-name">XRP</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-XRPUSD">—</div><div class="ar-chg flat" id="c-XRPUSD">—</div></div>
+    </div>
+    <div class="asset-row" data-type="crypto" data-sym="ADAUSD" data-name="Cardano" data-tv="BINANCE:ADAUSDT" data-fhmap="BINANCE:ADAUSDT" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">ADA</span><span class="ar-name">Cardano</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-ADAUSD">—</div><div class="ar-chg flat" id="c-ADAUSD">—</div></div>
+    </div>
+    <div class="asset-row" data-type="crypto" data-sym="AVAXUSD" data-name="Avalanche" data-tv="BINANCE:AVAXUSDT" data-fhmap="BINANCE:AVAXUSDT" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">AVAX</span><span class="ar-name">Avalanche</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-AVAXUSD">—</div><div class="ar-chg flat" id="c-AVAXUSD">—</div></div>
+    </div>
+    <div class="asset-row" data-type="crypto" data-sym="LINKUSD" data-name="Chainlink" data-tv="BINANCE:LINKUSDT" data-fhmap="BINANCE:LINKUSDT" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">LINK</span><span class="ar-name">Chainlink</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-LINKUSD">—</div><div class="ar-chg flat" id="c-LINKUSD">—</div></div>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- US EQUITIES -->
+  <div class="asset-group">
+    <div class="group-label">US Equities</div>
+    <div class="asset-row" data-type="equity" data-sym="AAPL" data-name="Apple Inc." data-tv="NASDAQ:AAPL" data-fhmap="AAPL" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">AAPL</span><span class="ar-name">Apple</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-AAPL">—</div><div class="ar-chg flat" id="c-AAPL">—</div></div>
+    </div>
+    <div class="asset-row" data-type="equity" data-sym="MSFT" data-name="Microsoft" data-tv="NASDAQ:MSFT" data-fhmap="MSFT" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">MSFT</span><span class="ar-name">Microsoft</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-MSFT">—</div><div class="ar-chg flat" id="c-MSFT">—</div></div>
+    </div>
+    <div class="asset-row" data-type="equity" data-sym="NVDA" data-name="NVIDIA Corp." data-tv="NASDAQ:NVDA" data-fhmap="NVDA" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">NVDA</span><span class="ar-name">NVIDIA</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-NVDA">—</div><div class="ar-chg flat" id="c-NVDA">—</div></div>
+    </div>
+    <div class="asset-row" data-type="equity" data-sym="TSLA" data-name="Tesla Inc." data-tv="NASDAQ:TSLA" data-fhmap="TSLA" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">TSLA</span><span class="ar-name">Tesla</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-TSLA">—</div><div class="ar-chg flat" id="c-TSLA">—</div></div>
+    </div>
+    <div class="asset-row" data-type="equity" data-sym="META" data-name="Meta Platforms" data-tv="NASDAQ:META" data-fhmap="META" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">META</span><span class="ar-name">Meta</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-META">—</div><div class="ar-chg flat" id="c-META">—</div></div>
+    </div>
+    <div class="asset-row" data-type="equity" data-sym="GOOGL" data-name="Alphabet" data-tv="NASDAQ:GOOGL" data-fhmap="GOOGL" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">GOOGL</span><span class="ar-name">Alphabet</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-GOOGL">—</div><div class="ar-chg flat" id="c-GOOGL">—</div></div>
+    </div>
+    <div class="asset-row" data-type="equity" data-sym="AMZN" data-name="Amazon" data-tv="NASDAQ:AMZN" data-fhmap="AMZN" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">AMZN</span><span class="ar-name">Amazon</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-AMZN">—</div><div class="ar-chg flat" id="c-AMZN">—</div></div>
+    </div>
+    <div class="asset-row" data-type="equity" data-sym="JPM" data-name="JPMorgan Chase" data-tv="NYSE:JPM" data-fhmap="JPM" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">JPM</span><span class="ar-name">JPMorgan</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-JPM">—</div><div class="ar-chg flat" id="c-JPM">—</div></div>
+    </div>
+    <div class="asset-row" data-type="equity" data-sym="GS" data-name="Goldman Sachs" data-tv="NYSE:GS" data-fhmap="GS" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">GS</span><span class="ar-name">Goldman Sachs</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-GS">—</div><div class="ar-chg flat" id="c-GS">—</div></div>
+    </div>
+    <div class="asset-row" data-type="equity" data-sym="SPY" data-name="S&P 500 ETF" data-tv="AMEX:SPY" data-fhmap="SPY" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">SPY</span><span class="ar-name">S&P 500 ETF</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-SPY">—</div><div class="ar-chg flat" id="c-SPY">—</div></div>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- EU EQUITIES -->
+  <div class="asset-group">
+    <div class="group-label">EU Equities</div>
+    <div class="asset-row" data-type="eu-equity" data-sym="ASML" data-name="ASML Holding" data-tv="NASDAQ:ASML" data-fhmap="ASML" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">ASML</span><span class="ar-name">ASML</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-ASML">—</div><div class="ar-chg flat" id="c-ASML">—</div></div>
+    </div>
+    <div class="asset-row" data-type="eu-equity" data-sym="SAP" data-name="SAP SE" data-tv="NYSE:SAP" data-fhmap="SAP" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">SAP</span><span class="ar-name">SAP SE</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-SAP">—</div><div class="ar-chg flat" id="c-SAP">—</div></div>
+    </div>
+    <div class="asset-row" data-type="eu-equity" data-sym="LVMHF" data-name="LVMH" data-tv="OTC:LVMHF" data-fhmap="LVMHF" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">LVMH</span><span class="ar-name">LVMH</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-LVMHF">—</div><div class="ar-chg flat" id="c-LVMHF">—</div></div>
+    </div>
+    <div class="asset-row" data-type="eu-equity" data-sym="SIEGY" data-name="Siemens AG" data-tv="OTC:SIEGY" data-fhmap="SIEGY" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">SIE</span><span class="ar-name">Siemens</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-SIEGY">—</div><div class="ar-chg flat" id="c-SIEGY">—</div></div>
+    </div>
+    <div class="asset-row" data-type="eu-equity" data-sym="NESN" data-name="Nestlé" data-tv="SIX:NESN" data-fhmap="NSRGY" onclick="selectAsset(this)">
+      <div class="ar-left"><span class="ar-sym">NESN</span><span class="ar-name">Nestlé</span></div>
+      <div class="ar-right"><div class="ar-price" id="p-NESN">—</div><div class="ar-chg flat" id="c-NESN">—</div></div>
+    </div>
+  </div>
+
+</aside>
+
+<!-- CHART AREA -->
+<main class="chart-area">
+  <div class="chart-header">
+    <div>
+      <div class="ch-sym" id="hSym">WTI</div>
+      <div class="ch-name" id="hName">WTI Crude Oil · Commodity</div>
+    </div>
+    <div class="ch-meta">
+      <span class="ch-badge" id="hType">COMMODITY</span>
+    </div>
+    <div class="ch-price-block">
+      <div class="ch-price" id="hPrice">—</div>
+      <div class="ch-chg" id="hChg">—</div>
+    </div>
+  </div>
+  <div class="chart-frame">
+    <iframe id="tvChart" src="" title="TradingView Chart" allowtransparency="true"></iframe>
+  </div>
+</main>
+
+<!-- NEWS PANEL -->
+<aside class="news-panel">
+  <div class="np-header">
+    <span class="np-title" id="npTitle">WTI · News</span>
+    <span class="np-count" id="npCount">—</span>
+  </div>
+
+  <div class="ai-card">
+    <div class="ai-card-header">
+      <span class="ai-label">AI ANALYSIS</span>
+      <span class="ai-badge loading" id="aiBadge">—</span>
+    </div>
+    <div class="ai-body" id="aiBody">
+      <span style="color:var(--text3)">Select an asset to load analysis.</span>
+    </div>
+  </div>
+
+  <div class="news-search-wrap">
+    <input class="news-search" id="newsSearch" placeholder="Search news..." oninput="filterSearch(this.value)">
+  </div>
+
+  <div class="news-feed" id="newsFeed">
+    <div class="empty-feed">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span>Loading news...</span>
+    </div>
+  </div>
+</aside>
+
+</div>
+<script>
+// ── ASSET KEYWORD MAP ──
+const KEYWORDS = {
+  USOIL:   ['crude oil','wti','oil price','opec','petroleum','barrel','brent'],
+  BRENT:   ['brent','crude oil','opec','oil price','petroleum','barrel'],
+  GOLD:    ['gold','gold price','bullion','precious metals','xau','fed rate'],
+  SILVER:  ['silver','silver price','xag','precious'],
+  PLATINUM:['platinum','palladium','precious metals','pgm'],
+  COPPER:  ['copper','copper price','base metals','chile','mining'],
+  NATGAS:  ['natural gas','natgas','lng','gas price','henry hub'],
+  BTCUSD:  ['bitcoin','btc','crypto','cryptocurrency','coinbase'],
+  ETHUSD:  ['ethereum','eth','ether','defi','vitalik'],
+  SOLUSD:  ['solana','sol','crypto'],
+  XRPUSD:  ['xrp','ripple','crypto'],
+  ADAUSD:  ['cardano','ada','crypto'],
+  AVAXUSD: ['avalanche','avax','crypto'],
+  LINKUSD: ['chainlink','link','oracle','crypto'],
+  AAPL:    ['apple','aapl','iphone','tim cook','app store','mac'],
+  MSFT:    ['microsoft','msft','azure','satya nadella','windows','copilot'],
+  NVDA:    ['nvidia','nvda','gpu','jensen huang','ai chips','semiconductor','cuda'],
+  TSLA:    ['tesla','tsla','elon musk','electric vehicle','ev','cybertruck'],
+  META:    ['meta','facebook','instagram','mark zuckerberg','whatsapp','threads'],
+  GOOGL:   ['google','alphabet','googl','sundar pichai','youtube','gemini','search'],
+  AMZN:    ['amazon','amzn','aws','andy jassy','prime','alexa'],
+  JPM:     ['jpmorgan','jpm','jamie dimon','bank','financial'],
+  GS:      ['goldman sachs','goldman','investment bank','wall street'],
+  SPY:     ['s&p 500','spy','stock market','equities','index'],
+  ASML:    ['asml','semiconductor','lithography','chip','euv'],
+  SAP:     ['sap','enterprise software','erp','cloud'],
+  LVMHF:   ['lvmh','louis vuitton','luxury','bernard arnault'],
+  SIEGY:   ['siemens','industrial','automation','germany'],
+  NESN:    ['nestle','nestlé','consumer goods','food'],
+};
+
+const FH_NEWS = {
+  USOIL:   { cat:'general',  type:'general' },
+  BRENT:   { cat:'general',  type:'general' },
+  GOLD:    { cat:'general',  type:'general' },
+  SILVER:  { cat:'general',  type:'general' },
+  PLATINUM:{ cat:'general',  type:'general' },
+  COPPER:  { cat:'general',  type:'general' },
+  NATGAS:  { cat:'general',  type:'general' },
+  BTCUSD:  { cat:'crypto',   type:'general' },
+  ETHUSD:  { cat:'crypto',   type:'general' },
+  SOLUSD:  { cat:'crypto',   type:'general' },
+  XRPUSD:  { cat:'crypto',   type:'general' },
+  ADAUSD:  { cat:'crypto',   type:'general' },
+  AVAXUSD: { cat:'crypto',   type:'general' },
+  LINKUSD: { cat:'crypto',   type:'general' },
+  AAPL:    { sym:'AAPL',     type:'company' },
+  MSFT:    { sym:'MSFT',     type:'company' },
+  NVDA:    { sym:'NVDA',     type:'company' },
+  TSLA:    { sym:'TSLA',     type:'company' },
+  META:    { sym:'META',     type:'company' },
+  GOOGL:   { sym:'GOOGL',    type:'company' },
+  AMZN:    { sym:'AMZN',     type:'company' },
+  JPM:     { sym:'JPM',      type:'company' },
+  GS:      { sym:'GS',       type:'company' },
+  SPY:     { sym:'SPY',      type:'company' },
+  ASML:    { sym:'ASML',     type:'company' },
+  SAP:     { sym:'SAP',      type:'company' },
+  LVMHF:   { sym:'LVMHF',   type:'company' },
+  SIEGY:   { sym:'SIEGY',   type:'company' },
+  NESN:    { sym:'NSRGY',   type:'company' },
+};
+
+const FH_QUOTE_MAP = {
+  USOIL:'OANDA:WTICOUSD', BRENT:'OANDA:BCOUSD', GOLD:'OANDA:XAUUSD',
+  SILVER:'OANDA:XAGUSD', PLATINUM:'OANDA:XPTUSD', COPPER:'OANDA:XCUUSD',
+  NATGAS:'OANDA:NATGASUSD',
+  BTCUSD:'BINANCE:BTCUSDT', ETHUSD:'BINANCE:ETHUSDT', SOLUSD:'BINANCE:SOLUSDT',
+  XRPUSD:'BINANCE:XRPUSDT', ADAUSD:'BINANCE:ADAUSDT', AVAXUSD:'BINANCE:AVAXUSDT',
+  LINKUSD:'BINANCE:LINKUSDT',
+};
+
+const TYPE_LABELS = { commodity:'COMMODITY', crypto:'CRYPTO', equity:'EQUITY', 'eu-equity':'EU EQUITY' };
+
+// ── STATE ──
+let current = null;
+let allNews = [];
+let prices = {};
+const API = '';
+
+// ── BOOT ──
+document.addEventListener('DOMContentLoaded', () => {
+  const first = document.querySelector('.asset-row.active');
+  if (first) selectAsset(first);
+  loadPrices();
+  setInterval(loadPrices, 15000);
+});
+
+// ── SELECT ASSET ──
+function selectAsset(el) {
+  document.querySelectorAll('.asset-row').forEach(r => r.classList.remove('active'));
+  el.classList.add('active');
+  current = {
+    sym:  el.dataset.sym,
+    name: el.dataset.name,
+    tv:   el.dataset.tv,
+    type: el.dataset.type,
+    fhmap: el.dataset.fhmap,
+  };
+  updateHeader();
+  loadChart();
+  loadNews();
+}
+
+function updateHeader() {
+  const p = prices[current.sym];
+  document.getElementById('hSym').textContent = current.sym.replace(/USD$/,'');
+  document.getElementById('hName').textContent = current.name + ' · ' + (current.type === 'eu-equity' ? 'EU Equity' : current.type.charAt(0).toUpperCase() + current.type.slice(1));
+  document.getElementById('hType').textContent = TYPE_LABELS[current.type] || current.type.toUpperCase();
+  document.getElementById('npTitle').textContent = current.sym.replace(/USD$/,'') + ' · News';
+  if (p) renderHeaderPrice(p);
+  else { document.getElementById('hPrice').textContent = '—'; document.getElementById('hChg').textContent = '—'; document.getElementById('hChg').className = 'ch-chg'; }
+}
+
+function renderHeaderPrice(p) {
+  document.getElementById('hPrice').textContent = fmt(p.c, current.type);
+  const up = p.dp >= 0;
+  const el = document.getElementById('hChg');
+  el.textContent = (up?'+':'') + (p.dp||0).toFixed(2) + '%  ' + (up?'▲':'▼') + ' ' + fmt(Math.abs(p.d||0), current.type);
+  el.className = 'ch-chg ' + (up ? 'up' : 'dn');
+}
+
+// ── CHART ──
+function loadChart() {
+  const sym = encodeURIComponent(current.tv);
+  document.getElementById('tvChart').src =
+    `https://s.tradingview.com/widgetembed/?symbol=${sym}&interval=D&hidesidetoolbar=0&saveimage=0&toolbarbg=111113&theme=dark&style=1&locale=en&withdateranges=1&allow_symbol_change=0&studies=RSI%40tv-basicstudies%1FMACD%40tv-basicstudies`;
+}
+
+// ── PRICES ──
+async function loadPrices() {
+  const allRows = document.querySelectorAll('.asset-row');
+  const syms = [...allRows].map(r => r.dataset.sym);
+
+  await Promise.allSettled(syms.map(async sym => {
+    const fhSym = FH_QUOTE_MAP[sym] || sym;
+    try {
+      const r = await fetch(`${API}/api/quote?symbol=${encodeURIComponent(fhSym)}`);
+      const d = await r.json();
+      if (d.c && d.c > 0) {
+        prices[sym] = d;
+        updateSidebarRow(sym, d);
+      }
+    } catch(e) {}
+  }));
+
+  updateTickerBar();
+  if (current) updateHeader();
+}
+
+function fmt(v, type) {
+  if (!v || v === 0) return '—';
+  if (type === 'crypto' && v >= 1000) return '$' + v.toLocaleString('en-US', {maximumFractionDigits:0});
+  if (type === 'crypto') return '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4});
+  return '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function updateSidebarRow(sym, d) {
+  const pEl = document.getElementById('p-' + sym);
+  const cEl = document.getElementById('c-' + sym);
+  if (!pEl || !cEl) return;
+  const type = document.querySelector(`[data-sym="${sym}"]`)?.dataset.type || 'equity';
+  const up = d.dp >= 0;
+  pEl.textContent = fmt(d.c, type);
+  cEl.textContent = (up?'+':'') + (d.dp||0).toFixed(2) + '%';
+  cEl.className = 'ar-chg ' + (up ? 'up' : 'dn');
+}
+
+// ── TICKER BAR ──
+function updateTickerBar() {
+  const items = ['USOIL','GOLD','BTCUSD','ETHUSD','SOLUSD','XRPUSD','AAPL','NVDA','TSLA','META','MSFT','GOOGL','SPY','AMZN'];
+  let html = '';
+  for (const sym of items) {
+    const d = prices[sym];
+    if (!d) continue;
+    const type = document.querySelector(`[data-sym="${sym}"]`)?.dataset.type || 'equity';
+    const up = d.dp >= 0;
+    const label = sym.replace(/USD$/,'');
+    html += `<div class="t-item" onclick="selectAssetBySym('${sym}')"><span class="t-sym">${label}</span><span class="t-val">${fmt(d.c,type)}</span><span class="t-chg ${up?'up':'dn'}">${up?'+':''}${(d.dp||0).toFixed(2)}%</span></div>`;
+  }
+  const track = document.getElementById('tickerTrack');
+  track.innerHTML = html + html;
+}
+
+function selectAssetBySym(sym) {
+  const el = document.querySelector(`[data-sym="${sym}"]`);
+  if (el) selectAsset(el);
+}
+
+// ── NEWS ──
+async function loadNews() {
+  const feed = document.getElementById('newsFeed');
+  feed.innerHTML = '<div class="empty-feed"><div class="dots"><span></span><span></span><span></span></div><span>Loading...</span></div>';
+  document.getElementById('npCount').textContent = '—';
+  document.getElementById('aiBadge').textContent = '—';
+  document.getElementById('aiBadge').className = 'ai-badge loading';
+  document.getElementById('aiBody').innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+  document.getElementById('newsSearch').value = '';
+
+  const info = FH_NEWS[current.sym];
+  if (!info) return;
+
+  try {
+    let articles = [];
+    if (info.type === 'company') {
+      const r = await fetch(`${API}/api/news?symbol=${info.sym}`);
+      articles = await r.json();
+    } else {
+      const r = await fetch(`${API}/api/market-news?category=${info.cat}`);
+      const raw = await r.json();
+      const kws = KEYWORDS[current.sym] || [];
+      articles = raw.filter(a => {
+        const t = ((a.headline||'') + ' ' + (a.summary||'')).toLowerCase();
+        return kws.some(k => t.includes(k));
+      });
+      // pad with general news if too thin
+      if (articles.length < 6) {
+        const extras = raw.filter(a => !articles.includes(a)).slice(0, 12);
+        articles = [...articles, ...extras];
+      }
+    }
+    allNews = articles;
+    renderNews(articles);
+    if (articles.length > 0) runAI(articles);
+  } catch(e) {
+    feed.innerHTML = '<div class="empty-feed" style="color:var(--red)">Failed to load news.</div>';
+  }
+}
+
+function timeAgo(ts) {
+  const m = Math.floor((Date.now() - ts * 1000) / 60000);
+  if (m < 1) return 'now';
+  if (m < 60) return m + 'm';
+  if (m < 1440) return Math.floor(m/60) + 'h';
+  return Math.floor(m/1440) + 'd';
+}
+
+function renderNews(articles) {
+  const feed = document.getElementById('newsFeed');
+  document.getElementById('npCount').textContent = articles.length;
+  if (!articles.length) {
+    feed.innerHTML = '<div class="empty-feed">No news found.</div>';
+    return;
+  }
+  feed.innerHTML = articles.map(a => `
+    <div class="news-item" onclick="window.open('${a.url||'#'}','_blank')">
+      <div class="ni-meta">
+        <span class="ni-source">${a.source||'Unknown'}</span>
+        <span class="ni-age">${timeAgo(a.datetime||0)}</span>
+      </div>
+      <div class="ni-headline">${a.headline||''}</div>
+      ${a.summary ? `<div class="ni-summary">${a.summary.slice(0,160)}…</div>` : ''}
+    </div>`).join('');
+}
+
+function filterSearch(q) {
+  if (!q.trim()) { renderNews(allNews); return; }
+  const ql = q.toLowerCase();
+  renderNews(allNews.filter(a => ((a.headline||'') + ' ' + (a.summary||'')).toLowerCase().includes(ql)));
+}
+
+// ── AI ──
+async function runAI(articles) {
+  const headlines = articles.slice(0, 14).map(a => a.headline||'').filter(Boolean).join('\n');
+  const prompt = `You are a concise financial analyst. Based on these recent headlines for ${current.name}:\n\n${headlines}\n\nRespond ONLY with valid JSON (no markdown, no extra text):\n{"summary":"2-3 sentences in English about key themes and market implications","sentiment":"BULLISH"|"BEARISH"|"NEUTRAL"}`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await r.json();
+    const text = data.content?.[0]?.text || '';
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    const sent = (parsed.sentiment||'NEUTRAL').toUpperCase();
+    document.getElementById('aiBody').textContent = parsed.summary;
+    document.getElementById('aiBadge').textContent = sent;
+    document.getElementById('aiBadge').className = 'ai-badge ' + sent.toLowerCase();
+  } catch(e) {
+    document.getElementById('aiBody').innerHTML = '<span style="color:var(--text3)">Analysis unavailable.</span>';
+    document.getElementById('aiBadge').textContent = '—';
+  }
+}
+</script>
+</body>
+</html>
