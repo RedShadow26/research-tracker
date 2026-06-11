@@ -20,230 +20,279 @@
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
   --text:#f0f0f2;--text2:#a0a0b0;--text3:#606070;
   --green:#3ecf8e;--red:#f87171;--amber:#f59e0b;--blue:#60a5fa;--purple:#a78bfa;
-  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;--r:8px;
-  --safe-top:env(safe-area-inset-top,0px);
-  --safe-bottom:env(safe-area-inset-bottom,0px);
-  --nav-h:56px;--top-h:48px;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;--r:7px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+  --topH:44px;--navH:54px;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;overflow:hidden;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;-webkit-font-smoothing:antialiased;overscroll-behavior:none;overflow:hidden;}
 
-/* ── TOPBAR ── */
+/* ─── TOPBAR ─── */
 .topbar{
   position:fixed;top:0;left:0;right:0;z-index:50;
-  height:calc(var(--top-h) + var(--safe-top));
-  padding-top:var(--safe-top);
-  display:flex;align-items:center;
+  height:calc(var(--topH) + var(--safe-t));
+  padding-top:var(--safe-t);
+  display:flex;align-items:center;gap:12px;
   background:var(--surface);border-bottom:1px solid var(--border);
-  padding-left:14px;padding-right:14px;gap:10px;
+  padding-left:14px;padding-right:14px;
 }
-.logo{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;color:var(--text);}
+.logo{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;white-space:nowrap;flex-shrink:0;}
 .logo em{color:var(--text3);font-style:normal;font-weight:400;}
-.top-ticker{flex:1;overflow:hidden;mask-image:linear-gradient(to right,transparent,black 20px,black calc(100% - 20px),transparent);}
-.ticker-track{display:flex;white-space:nowrap;animation:ticker 60s linear infinite;}
+.ticker-wrap{flex:1;overflow:hidden;min-width:0;mask-image:linear-gradient(to right,transparent,black 30px,black calc(100% - 30px),transparent);}
+.ticker-track{display:flex;white-space:nowrap;animation:ticker 70s linear infinite;}
 .ticker-track:hover{animation-play-state:paused;}
-@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
-.t-item{display:inline-flex;align-items:center;gap:5px;padding:0 10px;cursor:pointer;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.t-item{display:inline-flex;align-items:center;gap:5px;padding:0 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .t-sym{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--text3);}
 .t-val{font-family:var(--mono);font-size:10px;color:var(--text);}
 .t-chg{font-family:var(--mono);font-size:10px;}
 .t-chg.up{color:var(--green);}.t-chg.dn{color:var(--red);}
-.top-auth{flex-shrink:0;}
-.auth-btn{font-family:var(--mono);font-size:10px;padding:5px 10px;border-radius:4px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;white-space:nowrap;}
-.auth-btn.signed-in{color:var(--green);border-color:rgba(62,207,142,.3);}
+.auth-btn{font-family:var(--mono);font-size:10px;padding:5px 11px;border-radius:4px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.auth-btn.on{color:var(--green);border-color:rgba(62,207,142,.3);}
 
-/* ── BOTTOM NAV ── */
-.bottom-nav{
-  position:fixed;bottom:0;left:0;right:0;z-index:50;
-  height:calc(var(--nav-h) + var(--safe-bottom));
-  padding-bottom:var(--safe-bottom);
-  display:flex;align-items:stretch;
-  background:var(--surface);border-top:1px solid var(--border);
+/* ─── DESKTOP LAYOUT ─── */
+@media(min-width:768px){
+  .bottom-nav{display:none!important;}
+  .mob-only{display:none!important;}
+  .desktop-layout{
+    position:fixed;
+    top:var(--topH);left:0;right:0;bottom:0;
+    display:grid;
+    grid-template-columns:210px 1fr 310px;
+    grid-template-rows:1fr;
+  }
+  /* col 1: asset list */
+  .col-assets{
+    overflow-y:auto;overflow-x:hidden;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+  }
+  .col-assets::-webkit-scrollbar{width:0;}
+  /* col 2: chart + tabs */
+  .col-main{
+    display:flex;flex-direction:column;
+    overflow:hidden;background:var(--bg);
+    border-right:1px solid var(--border);
+  }
+  /* col 3: news */
+  .col-news{
+    display:flex;flex-direction:column;
+    overflow:hidden;background:var(--surface);
+  }
+  /* hide mobile pages */
+  .mobile-layout{display:none!important;}
 }
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--text3);transition:color .15s;padding:0;}
-.nav-btn.active{color:var(--text);}
-.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
-.nav-label{font-size:9px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;}
-.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--green);position:absolute;top:8px;}
 
-/* ── PAGE SYSTEM ── */
-.page{
-  position:fixed;inset:0;
-  top:calc(var(--top-h) + var(--safe-top));
-  bottom:calc(var(--nav-h) + var(--safe-bottom));
-  overflow-y:auto;overflow-x:hidden;
-  display:none;
-  -webkit-overflow-scrolling:touch;
+/* ─── MOBILE LAYOUT ─── */
+@media(max-width:767px){
+  .desktop-layout{display:none!important;}
+  .mobile-layout{
+    position:fixed;
+    top:calc(var(--topH) + var(--safe-t));
+    bottom:calc(var(--navH) + var(--safe-b));
+    left:0;right:0;
+    overflow:hidden;
+  }
+  .mob-page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;-webkit-overflow-scrolling:touch;}
+  .mob-page::-webkit-scrollbar{width:0;}
+  .mob-page.show{display:block;}
+  .bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:50;
+    height:calc(var(--navH) + var(--safe-b));
+    padding-bottom:var(--safe-b);
+    display:flex;background:var(--surface);border-top:1px solid var(--border);
+  }
+  .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;cursor:pointer;color:var(--text3);-webkit-tap-highlight-color:transparent;}
+  .nav-btn.on{color:var(--text);}
+  .nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+  .nav-lbl{font-size:9px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;}
 }
-.page.active{display:block;}
-.page::-webkit-scrollbar{width:0;}
 
-/* ── MARKETS PAGE ── */
-.asset-group{padding:10px 0 4px;}
-.group-label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:0 14px 6px;}
-.asset-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;transition:background .1s;border-left:2px solid transparent;gap:8px;-webkit-tap-highlight-color:transparent;}
-.asset-row:active{background:var(--surface2);}
+/* ─── ASSET LIST (shared) ─── */
+.grp-label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:12px 12px 5px;}
+.asset-row{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 12px;cursor:pointer;
+  border-left:2px solid transparent;
+  transition:background .1s;
+  -webkit-tap-highlight-color:transparent;
+}
+.asset-row:hover{background:var(--surface2);}
 .asset-row.active{background:var(--surface3);border-left-color:var(--text);}
-.ar-left{display:flex;align-items:center;gap:10px;}
-.ar-icon{width:32px;height:32px;border-radius:8px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;flex-shrink:0;}
+.ar-icon{width:30px;height:30px;border-radius:7px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;flex-shrink:0;}
 .ar-icon.commodity{color:var(--amber);}
 .ar-icon.crypto{color:var(--blue);}
-.ar-icon.equity{color:var(--text2);}
+.ar-icon.equity,.ar-icon.eu-equity{color:var(--text2);}
 .ar-icon.eu-equity{color:var(--purple);}
-.ar-info{display:flex;flex-direction:column;gap:1px;}
-.ar-sym{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text);}
-.ar-name{font-size:11px;color:var(--text3);}
-.ar-right{display:flex;align-items:center;gap:8px;}
-.ar-prices{text-align:right;}
-.ar-price{font-family:var(--mono);font-size:12px;color:var(--text);}
+.ar-info{flex:1;min-width:0;}
+.ar-sym{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text);}
+.ar-name{font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ar-prices{text-align:right;flex-shrink:0;}
+.ar-price{font-family:var(--mono);font-size:11px;color:var(--text);}
 .ar-chg{font-family:var(--mono);font-size:10px;}
 .ar-chg.up{color:var(--green);}.ar-chg.dn{color:var(--red);}.ar-chg.flat{color:var(--text3);}
-.watch-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
-.watch-btn.on{color:var(--amber);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08);}
-.divider{height:1px;background:var(--border);margin:2px 0;}
+.wbtn{width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:all .15s;}
+.wbtn.on{color:var(--amber);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08);}
+.divider{height:1px;background:var(--border);margin:4px 0;}
 
-/* ── DETAIL PAGE ── */
-.detail-header{padding:14px;border-bottom:1px solid var(--border);background:var(--surface);}
-.detail-back{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;margin-bottom:10px;-webkit-tap-highlight-color:transparent;}
-.detail-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
-.detail-title{display:flex;align-items:flex-end;justify-content:space-between;}
-.detail-sym{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--text);}
-.detail-name{font-size:11px;color:var(--text3);margin-top:2px;}
-.detail-price{font-family:var(--mono);font-size:22px;color:var(--text);}
-.detail-chg{font-family:var(--mono);font-size:12px;margin-top:2px;text-align:right;}
-.detail-chg.up{color:var(--green);}.detail-chg.dn{color:var(--red);}
-.detail-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);}
-.dtab{flex:1;padding:10px 0;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.dtab.active{color:var(--text);border-bottom-color:var(--text);}
-.detail-content{display:none;}
-.detail-content.active{display:block;}
+/* ─── DESKTOP MAIN (chart + tabs) ─── */
+.main-header{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.mh-sym{font-family:var(--mono);font-size:20px;font-weight:600;}
+.mh-name{font-size:11px;color:var(--text3);margin-top:1px;}
+.mh-badge{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px;border:1px solid var(--border2);color:var(--text3);}
+.mh-price{font-family:var(--mono);font-size:20px;margin-left:auto;}
+.mh-chg{font-family:var(--mono);font-size:11px;margin-top:2px;text-align:right;}
+.mh-chg.up{color:var(--green);}.mh-chg.dn{color:var(--red);}
 
-/* CHART TAB */
-.chart-wrap{height:55vw;min-height:240px;max-height:360px;background:var(--bg);}
-.chart-wrap iframe{width:100%;height:100%;border:none;display:block;}
+.main-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface);}
+.mtab{flex:1;padding:9px 0;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .15s;}
+.mtab.on{color:var(--text);border-bottom-color:var(--text);}
 
-/* NEWS TAB */
-.news-item{padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.news-item:active{background:var(--surface2);}
+.tab-pane{display:none;flex:1;overflow-y:auto;overflow-x:hidden;flex-direction:column;}
+.tab-pane::-webkit-scrollbar{width:3px;}
+.tab-pane::-webkit-scrollbar-thumb{background:var(--border2);}
+.tab-pane.on{display:flex;}
+
+/* chart pane specifically fills remaining height */
+#tp-chart{overflow:hidden;}
+#tp-chart iframe{width:100%;height:100%;border:none;display:block;}
+
+/* ─── DESKTOP NEWS PANEL ─── */
+.news-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.news-title{font-family:var(--mono);font-size:11px;color:var(--text2);}
+.news-count{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--surface3);padding:1px 6px;border-radius:3px;}
+.news-search-wrap{padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.news-search{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:var(--text);font-family:var(--sans);font-size:11px;outline:none;}
+.news-search::placeholder{color:var(--text3);}
+.news-feed{flex:1;overflow-y:auto;}
+.news-feed::-webkit-scrollbar{width:3px;}
+.news-feed::-webkit-scrollbar-thumb{background:var(--border2);}
+.news-item{padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s;}
+.news-item:hover,.news-item:active{background:var(--surface2);}
 .ni-meta{display:flex;justify-content:space-between;margin-bottom:4px;}
 .ni-src{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;font-weight:500;}
 .ni-age{font-family:var(--mono);font-size:10px;color:var(--text3);}
-.ni-hl{font-size:13px;line-height:1.5;color:var(--text);}
-.ni-sum{font-size:11px;color:var(--text2);line-height:1.55;margin-top:5px;}
+.ni-hl{font-size:12px;line-height:1.5;color:var(--text);}
+.ni-sum{font-size:11px;color:var(--text2);line-height:1.55;margin-top:4px;display:none;}
+.news-item:hover .ni-sum{display:block;}
 
-/* COMMUNITY TAB */
-.comm-composer{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--surface);}
-.comm-textarea{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;resize:none;min-height:70px;line-height:1.5;transition:border-color .15s;}
-.comm-textarea:focus{border-color:var(--border2);}
-.comm-textarea::placeholder{color:var(--text3);}
-.comm-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+/* ─── MOBILE DETAIL ─── */
+.mob-back{display:flex;align-items:center;gap:5px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;border-bottom:1px solid var(--border);background:var(--surface);}
+.mob-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.mob-detail-header{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--surface);}
+.mob-sym{font-family:var(--mono);font-size:20px;font-weight:600;}
+.mob-name{font-size:11px;color:var(--text3);margin-top:2px;}
+.mob-price{font-family:var(--mono);font-size:20px;margin-top:6px;}
+.mob-chg{font-family:var(--mono);font-size:12px;margin-top:2px;}
+.mob-chg.up{color:var(--green);}.mob-chg.dn{color:var(--red);}
+.mob-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
+.mob-tab{flex:1;padding:9px 0;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;}
+.mob-tab.on{color:var(--text);border-bottom-color:var(--text);}
+.mob-tab-pane{display:none;}
+.mob-tab-pane.on{display:block;}
+.mob-chart-wrap{height:56vw;min-height:220px;max-height:320px;}
+.mob-chart-wrap iframe{width:100%;height:100%;border:none;display:block;}
+
+/* ─── COMMUNITY ─── */
+.comm-box{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--surface);}
+.comm-ta{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;resize:none;min-height:72px;line-height:1.5;}
+.comm-ta:focus{border-color:var(--border2);}
+.comm-ta::placeholder{color:var(--text3);}
+.comm-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
 .comm-chars{font-family:var(--mono);font-size:10px;color:var(--text3);}
-.comm-post-btn{font-family:var(--mono);font-size:11px;font-weight:500;padding:7px 16px;background:var(--text);color:var(--bg);border:none;border-radius:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.comm-post-btn:disabled{opacity:.4;}
-.comm-login-prompt{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.comm-login-txt{font-size:12px;color:var(--text3);}
-.comm-login-btn{font-family:var(--mono);font-size:10px;padding:5px 12px;border:1px solid var(--border2);background:none;color:var(--text2);border-radius:4px;cursor:pointer;}
-.post-card{padding:12px 14px;border-bottom:1px solid var(--border);}
-.post-card:active{background:var(--surface2);}
-.post-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.post-avatar{width:24px;height:24px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text2);flex-shrink:0;}
+.comm-post{font-family:var(--mono);font-size:11px;font-weight:600;padding:7px 16px;background:var(--text);color:var(--bg);border:none;border-radius:5px;cursor:pointer;}
+.comm-post:disabled{opacity:.4;}
+.comm-login{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.comm-login span{font-size:12px;color:var(--text3);}
+.comm-login button{font-family:var(--mono);font-size:10px;padding:5px 12px;border:1px solid var(--border2);background:none;color:var(--text2);border-radius:4px;cursor:pointer;}
+
+/* Post card — Reddit style */
+.post-card{display:flex;gap:0;border-bottom:1px solid var(--border);}
+/* vote column */
+.post-votes{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px 10px 10px;background:var(--surface2);flex-shrink:0;width:36px;}
+.vote-btn{width:20px;height:20px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;border-radius:3px;font-size:13px;color:var(--text3);-webkit-tap-highlight-color:transparent;transition:color .15s;}
+.vote-btn:hover{background:var(--surface3);}
+.vote-btn.up-on{color:var(--amber);}
+.vote-btn.dn-on{color:var(--blue);}
+.vote-score{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text2);}
+.vote-score.pos{color:var(--amber);}
+.vote-score.neg{color:var(--blue);}
+/* post body */
+.post-body{flex:1;padding:10px 12px 10px 8px;min-width:0;}
+.post-meta{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.post-av{width:20px;height:20px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text2);flex-shrink:0;}
 .post-user{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text2);}
 .post-time{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:auto;}
-.post-body{font-size:13px;line-height:1.55;color:var(--text);margin-bottom:8px;}
-.post-actions{display:flex;align-items:center;gap:12px;}
-.post-upvote{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;}
-.post-upvote.voted{color:var(--green);}
-.post-reply-btn{font-family:var(--mono);font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;}
-.replies-section{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
-.reply-card{padding:8px 0 4px;display:flex;gap:8px;}
-.reply-line{width:2px;background:var(--border);flex-shrink:0;margin-left:11px;}
-.reply-content{flex:1;}
+.post-text{font-size:13px;line-height:1.55;color:var(--text);word-break:break-word;}
+.post-actions{display:flex;align-items:center;gap:10px;margin-top:8px;}
+.post-action-btn{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;color:var(--text3);background:none;border:none;cursor:pointer;padding:3px 6px;border-radius:3px;-webkit-tap-highlight-color:transparent;}
+.post-action-btn:hover{background:var(--surface3);color:var(--text2);}
+.post-action-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+/* replies */
+.replies-wrap{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.reply-item{display:flex;gap:8px;padding:6px 0;}
+.reply-line{width:2px;background:var(--border);flex-shrink:0;margin-left:8px;border-radius:1px;}
+.reply-inner{flex:1;min-width:0;}
 .reply-meta{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
 .reply-user{font-family:var(--mono);font-size:10px;color:var(--text3);}
-.reply-time{font-family:var(--mono);font-size:10px;color:var(--text3);opacity:.6;}
-.reply-body{font-size:12px;line-height:1.5;color:var(--text2);}
-.reply-composer{margin-top:8px;display:flex;gap:8px;}
-.reply-input{flex:1;background:var(--surface3);border:1px solid var(--border);border-radius:5px;padding:7px 10px;color:var(--text);font-family:var(--sans);font-size:12px;outline:none;}
-.reply-input::placeholder{color:var(--text3);}
-.reply-submit{font-family:var(--mono);font-size:10px;padding:7px 12px;background:var(--surface3);border:1px solid var(--border2);color:var(--text2);border-radius:5px;cursor:pointer;flex-shrink:0;}
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:8px;color:var(--text3);font-size:12px;text-align:center;}
+.reply-time{font-family:var(--mono);font-size:10px;color:var(--text3);opacity:.5;}
+.reply-text{font-size:12px;line-height:1.5;color:var(--text2);word-break:break-word;}
+.reply-composer{display:flex;gap:6px;margin-top:8px;}
+.reply-in{flex:1;background:var(--surface3);border:1px solid var(--border);border-radius:5px;padding:7px 10px;color:var(--text);font-family:var(--sans);font-size:12px;outline:none;}
+.reply-in::placeholder{color:var(--text3);}
+.reply-in:focus{border-color:var(--border2);}
+.reply-send{font-family:var(--mono);font-size:10px;padding:7px 12px;background:var(--surface3);border:1px solid var(--border2);color:var(--text2);border-radius:5px;cursor:pointer;flex-shrink:0;}
 
-/* WATCHLIST PAGE */
-.watchlist-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:10px;color:var(--text3);font-size:13px;text-align:center;padding:20px;}
-.watchlist-empty .wl-icon{font-size:32px;margin-bottom:4px;}
+/* ─── WATCHLIST EMPTY ─── */
+.wl-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:10px;color:var(--text3);font-size:12px;text-align:center;padding:20px;}
+.wl-empty-icon{font-size:28px;}
 
-/* DOTS LOADER */
+/* ─── SHARED EMPTY / LOADER ─── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:8px;color:var(--text3);font-size:12px;text-align:center;}
 .dots{display:inline-flex;gap:3px;}
 .dots span{width:3px;height:3px;border-radius:50%;background:var(--text3);animation:dp 1.2s infinite;}
-.dots span:nth-child(2){animation-delay:.2s;}.dots span:nth-child(3){animation-delay:.4s;}
-@keyframes dp{0%,80%,100%{opacity:.2;}40%{opacity:1;}}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes dp{0%,80%,100%{opacity:.2}40%{opacity:1}}
 
-/* AUTH MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
-.modal-overlay.hidden{display:none;}
-.modal{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:480px;padding-bottom:calc(20px + var(--safe-bottom));border-top:1px solid var(--border2);}
-.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 16px;}
-.modal-title{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text);padding:0 20px 16px;border-bottom:1px solid var(--border);}
+/* ─── INSTALL BANNER ─── */
+.install-bar{position:fixed;bottom:calc(var(--navH) + var(--safe-b) + 8px);left:12px;right:12px;z-index:40;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:10px;}
+.install-bar.hidden{display:none;}
+@media(min-width:768px){.install-bar{bottom:12px;}}
+.ib-icon{width:34px;height:34px;border-radius:7px;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;}
+.ib-text{flex:1;}
+.ib-title{font-size:12px;font-weight:500;}
+.ib-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.ib-dismiss{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px;}
+.ib-install{font-family:var(--mono);font-size:10px;font-weight:600;padding:6px 12px;background:var(--text);color:var(--bg);border:none;border-radius:4px;cursor:pointer;}
+
+/* ─── AUTH MODAL ─── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
+.modal-bg.hidden{display:none;}
+.modal{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:480px;border-top:1px solid var(--border2);padding-bottom:calc(20px + var(--safe-b));}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0;}
+.modal-head{padding:14px 20px 14px;border-bottom:1px solid var(--border);}
+.modal-title{font-family:var(--mono);font-size:13px;font-weight:500;}
 .modal-body{padding:20px;}
-.modal-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
-.mtab{flex:1;padding:8px;font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;}
-.mtab.active{background:var(--surface3);color:var(--text);}
-.form-group{margin-bottom:14px;}
-.form-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;display:block;}
-.form-input{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:5px;padding:10px 12px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;}
-.form-input:focus{border-color:var(--border2);}
-.form-input::placeholder{color:var(--text3);}
-.form-btn{width:100%;padding:12px;background:var(--text);color:var(--bg);border:none;border-radius:6px;font-family:var(--mono);font-size:12px;font-weight:600;cursor:pointer;margin-top:4px;}
-.form-btn:disabled{opacity:.4;}
-.form-msg{font-size:11px;margin-top:10px;text-align:center;}
-.form-msg.err{color:var(--red);}.form-msg.ok{color:var(--green);}
-
-/* INSTALL BANNER */
-.install-banner{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 8px);left:12px;right:12px;z-index:40;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;}
-.install-banner.hidden{display:none;}
-.install-icon{width:36px;height:36px;border-radius:8px;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);}
-.install-text{flex:1;}
-.install-title{font-size:12px;font-weight:500;color:var(--text);}
-.install-sub{font-size:11px;color:var(--text3);margin-top:1px;}
-.install-actions{display:flex;gap:6px;flex-shrink:0;}
-.install-dismiss{font-family:var(--mono);font-size:10px;background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;}
-.install-btn{font-family:var(--mono);font-size:10px;padding:6px 12px;background:var(--text);color:var(--bg);border:none;border-radius:5px;cursor:pointer;font-weight:600;}
-
-/* DESKTOP LAYOUT */
-@media (min-width: 768px) {
-  .bottom-nav{display:none;}
-  .page{bottom:0;}
-  .topbar{gap:16px;}
-
-  /* Desktop: sidebar + main */
-  #page-markets{
-    display:block!important;
-    position:fixed;
-    top:calc(var(--top-h) + var(--safe-top));
-    left:0;width:220px;bottom:0;
-    border-right:1px solid var(--border);
-    background:var(--surface);
-  }
-  #page-detail{
-    display:block!important;
-    position:fixed;
-    top:calc(var(--top-h) + var(--safe-top));
-    left:220px;right:320px;bottom:0;
-    background:var(--bg);
-    border-right:1px solid var(--border);
-  }
-  #page-watchlist{display:none!important;}
-  #page-news-desktop{
-    display:block!important;
-    position:fixed;
-    top:calc(var(--top-h) + var(--safe-top));
-    right:0;width:320px;bottom:0;
-    background:var(--surface);
-  }
-  .detail-back{display:none;}
-  .detail-tabs .dtab[data-tab="news"]{display:none;}
-  .install-banner{bottom:12px;}
-  .modal-overlay{align-items:center;}
-  .modal{border-radius:12px;max-width:400px;padding-bottom:0;}
+.auth-tabs{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:18px;}
+.atab{flex:1;padding:8px;font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;}
+.atab.on{background:var(--surface3);color:var(--text);}
+.fg{margin-bottom:14px;}
+.fl{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;display:block;}
+.fi{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:5px;padding:10px 12px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;}
+.fi:focus{border-color:var(--border2);}
+.fi::placeholder{color:var(--text3);}
+.fb{width:100%;padding:12px;background:var(--text);color:var(--bg);border:none;border-radius:6px;font-family:var(--mono);font-size:12px;font-weight:600;cursor:pointer;margin-top:4px;}
+.fb:disabled{opacity:.4;}
+.fm{font-size:11px;margin-top:10px;text-align:center;}
+.fm.err{color:var(--red);}.fm.ok{color:var(--green);}
+@media(min-width:768px){
+  .modal-bg{align-items:center;}
+  .modal{border-radius:12px;padding-bottom:0;max-width:400px;}
   .modal-handle{display:none;}
 }
 </style>
@@ -253,184 +302,195 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="logo">SIG<em>NAL</em></div>
-  <div class="top-ticker"><div class="ticker-track" id="tickerTrack"></div></div>
-  <div class="top-auth">
-    <button class="auth-btn" id="authBtn" onclick="openAuth()">Sign in</button>
-  </div>
+  <div class="ticker-wrap"><div class="ticker-track" id="tickerTrack"></div></div>
+  <button class="auth-btn" id="authBtn" onclick="openAuth()">Sign in</button>
 </header>
 
-<!-- PAGES -->
+<!-- ══════════ DESKTOP LAYOUT ══════════ -->
+<div class="desktop-layout">
 
-<!-- MARKETS -->
-<div class="page active" id="page-markets">
-  <div id="marketsBody"></div>
+  <!-- COL 1: Asset list -->
+  <div class="col-assets" id="desktopAssets"></div>
+
+  <!-- COL 2: Chart + community tabs -->
+  <div class="col-main">
+    <div class="main-header">
+      <div>
+        <div class="mh-sym" id="dkSym">—</div>
+        <div class="mh-name" id="dkName">Select an asset</div>
+      </div>
+      <span class="mh-badge" id="dkBadge">—</span>
+      <div style="margin-left:auto;text-align:right;">
+        <div class="mh-price" id="dkPrice">—</div>
+        <div class="mh-chg" id="dkChg">—</div>
+      </div>
+    </div>
+    <div class="main-tabs">
+      <button class="mtab on" data-t="chart" onclick="dkTab('chart',this)">Chart</button>
+      <button class="mtab" data-t="community" onclick="dkTab('community',this)">Community</button>
+    </div>
+    <div class="tab-pane on" id="tp-chart">
+      <iframe id="dkChart" src="" title="Chart" allowtransparency="true"></iframe>
+    </div>
+    <div class="tab-pane" id="tp-community" style="overflow-y:auto;">
+      <div id="dkCommunity"></div>
+    </div>
+  </div>
+
+  <!-- COL 3: News -->
+  <div class="col-news">
+    <div class="news-header">
+      <span class="news-title" id="dkNewsTitle">News</span>
+      <span class="news-count" id="dkNewsCount">—</span>
+    </div>
+    <div class="news-search-wrap">
+      <input class="news-search" placeholder="Search news..." oninput="searchNews(this.value)" id="newsSearchIn">
+    </div>
+    <div class="news-feed" id="dkNewsFeed">
+      <div class="empty"><span>Select an asset</span></div>
+    </div>
+  </div>
+
 </div>
 
-<!-- DETAIL (mobile: full page / desktop: center panel) -->
-<div class="page" id="page-detail">
-  <div class="detail-header">
-    <div class="detail-back" onclick="goBack()">
+<!-- ══════════ MOBILE LAYOUT ══════════ -->
+<div class="mobile-layout">
+
+  <!-- PAGE: Markets list -->
+  <div class="mob-page show" id="mob-markets">
+    <div id="mobAssets"></div>
+  </div>
+
+  <!-- PAGE: Asset detail -->
+  <div class="mob-page" id="mob-detail">
+    <div class="mob-back" onclick="mobBack()">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       Markets
     </div>
-    <div class="detail-title">
-      <div>
-        <div class="detail-sym" id="dSym">—</div>
-        <div class="detail-name" id="dName">—</div>
-      </div>
-      <div>
-        <div class="detail-price" id="dPrice">—</div>
-        <div class="detail-chg" id="dChg">—</div>
+    <div class="mob-detail-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="mob-sym" id="mobSym">—</div>
+          <div class="mob-name" id="mobName">—</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="mob-price" id="mobPrice">—</div>
+          <div class="mob-chg" id="mobChg">—</div>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="detail-tabs">
-    <button class="dtab active" data-tab="chart" onclick="switchDetailTab('chart',this)">Chart</button>
-    <button class="dtab" data-tab="news" onclick="switchDetailTab('news',this)">News</button>
-    <button class="dtab" data-tab="community" onclick="switchDetailTab('community',this)">Community</button>
-  </div>
-  <div class="detail-content active" id="tab-chart">
-    <div class="chart-wrap"><iframe id="tvChart" src="" title="Chart" allowtransparency="true"></iframe></div>
-    <!-- AI Card -->
-    <div style="margin:12px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface2);opacity:.45;pointer-events:none;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);">
-        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;">MACRO CONTEXT</span>
-        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--surface3);padding:1px 7px;border-radius:3px;">COMING SOON</span>
-      </div>
-      <div style="padding:10px 12px;font-size:11.5px;color:var(--text3);">AI macro analysis — available in a future update.</div>
+    <div class="mob-tabs">
+      <button class="mob-tab on" onclick="mobTab('chart',this)">Chart</button>
+      <button class="mob-tab" onclick="mobTab('news',this)">News</button>
+      <button class="mob-tab" onclick="mobTab('community',this)">Community</button>
+    </div>
+    <div class="mob-tab-pane on" id="mob-tp-chart">
+      <div class="mob-chart-wrap"><iframe id="mobChart" src="" title="Chart" allowtransparency="true"></iframe></div>
+    </div>
+    <div class="mob-tab-pane" id="mob-tp-news">
+      <div id="mobNewsFeed"><div class="empty"><div class="dots"><span></span><span></span><span></span></div></div></div>
+    </div>
+    <div class="mob-tab-pane" id="mob-tp-community">
+      <div id="mobCommunity"></div>
     </div>
   </div>
-  <div class="detail-content" id="tab-news">
-    <div id="newsFeed"><div class="empty-state"><div class="dots"><span></span><span></span><span></span></div></div></div>
+
+  <!-- PAGE: Watchlist -->
+  <div class="mob-page" id="mob-watchlist">
+    <div id="mobWatchlist"></div>
   </div>
-  <div class="detail-content" id="tab-community">
-    <div id="communityFeed"></div>
-  </div>
+
 </div>
 
-<!-- WATCHLIST -->
-<div class="page" id="page-watchlist">
-  <div id="watchlistBody"></div>
-</div>
-
-<!-- DESKTOP NEWS PANEL -->
-<div class="page" id="page-news-desktop" style="display:none;">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);">
-    <span style="font-family:var(--mono);font-size:11px;color:var(--text2);" id="desktopNewsTitle">News</span>
-    <span style="font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--surface3);padding:1px 6px;border-radius:3px;" id="desktopNewsCount">—</span>
-  </div>
-  <div style="padding:8px 12px;border-bottom:1px solid var(--border);">
-    <input style="width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:var(--text);font-family:var(--sans);font-size:11px;outline:none;" placeholder="Search news..." oninput="filterSearch(this.value)" id="newsSearch">
-  </div>
-  <div style="overflow-y:auto;height:calc(100% - 88px);" id="desktopNewsFeed">
-    <div class="empty-state"><span>Select an asset</span></div>
-  </div>
-</div>
-
-<!-- BOTTOM NAV -->
+<!-- BOTTOM NAV (mobile only) -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" id="nav-markets" onclick="showPage('markets')">
+  <button class="nav-btn on" id="nb-markets" onclick="mobShowPage('markets')">
     <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    <span class="nav-label">Markets</span>
+    <span class="nav-lbl">Markets</span>
   </button>
-  <button class="nav-btn" id="nav-watchlist" onclick="showPage('watchlist')">
+  <button class="nav-btn" id="nb-watchlist" onclick="mobShowPage('watchlist')">
     <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-    <span class="nav-label">Watchlist</span>
+    <span class="nav-lbl">Watchlist</span>
   </button>
 </nav>
 
 <!-- INSTALL BANNER -->
-<div class="install-banner hidden" id="installBanner">
-  <div class="install-icon">S</div>
-  <div class="install-text">
-    <div class="install-title">Add SIGNAL to Home Screen</div>
-    <div class="install-sub">Tap Share → Add to Home Screen</div>
-  </div>
-  <div class="install-actions">
-    <button class="install-dismiss" onclick="dismissInstall()">✕</button>
-    <button class="install-btn" onclick="triggerInstall()">Install</button>
-  </div>
+<div class="install-bar hidden" id="installBar">
+  <div class="ib-icon">S</div>
+  <div class="ib-text"><div class="ib-title">Add SIGNAL to Home Screen</div><div class="ib-sub" id="ibSub">Tap Share → Add to Home Screen</div></div>
+  <button class="ib-dismiss" onclick="dismissInstall()">✕</button>
+  <button class="ib-install" id="ibInstallBtn" onclick="triggerInstall()">Install</button>
 </div>
 
 <!-- AUTH MODAL -->
-<div class="modal-overlay hidden" id="authModal">
+<div class="modal-bg hidden" id="authModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">SIGNAL / account</div>
+    <div class="modal-head"><div class="modal-title">SIGNAL · account</div></div>
     <div class="modal-body">
-      <div class="modal-tabs">
-        <button class="mtab active" onclick="switchAuthTab('login',this)">Sign in</button>
-        <button class="mtab" onclick="switchAuthTab('signup',this)">Sign up</button>
+      <div class="auth-tabs">
+        <button class="atab on" onclick="setAuthMode('login',this)">Sign in</button>
+        <button class="atab" onclick="setAuthMode('signup',this)">Sign up</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input class="form-input" id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password">
-      </div>
-      <button class="form-btn" id="authSubmit" onclick="submitAuth()">Sign in</button>
-      <div class="form-msg" id="authMsg"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="aEmail" type="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="fg"><label class="fl">Password</label><input class="fi" id="aPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="fb" id="aSubmit" onclick="doAuth()">Sign in</button>
+      <div class="fm" id="aMsg"></div>
     </div>
   </div>
 </div>
 
 <script>
-// ── SUPABASE ──
-const { createClient } = supabase;
+const {createClient} = supabase;
 const sb = createClient(
   'https://umutzcmbmbkxibtwxonx.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtdXR6Y21ibWJreGlidHd4b254Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODkwODYsImV4cCI6MjA5NjY2NTA4Nn0.Jmi9y-7QUgc8kphla45NQWX5cpI1BspIM9R6Vq7fVd4'
 );
-
 const API = '';
-const isMobile = () => window.innerWidth < 768;
 
-// ── ASSETS ──
-const ALL_ASSETS = [
-  {group:'Commodities',type:'commodity',assets:[
-    {sym:'USOIL',label:'WTI',name:'Crude Oil',tv:'TVC:USOIL',fh:'OANDA:WTICOUSD'},
-    {sym:'BRENT',label:'BRENT',name:'Brent Crude',tv:'TVC:UKOIL',fh:'OANDA:BCOUSD'},
-    {sym:'GOLD',label:'GOLD',name:'Gold Spot',tv:'TVC:GOLD',fh:'OANDA:XAUUSD'},
-    {sym:'SILVER',label:'SILVER',name:'Silver Spot',tv:'TVC:SILVER',fh:'OANDA:XAGUSD'},
-    {sym:'PLATINUM',label:'PLAT',name:'Platinum',tv:'TVC:PLATINUM',fh:'OANDA:XPTUSD'},
-    {sym:'COPPER',label:'COPPER',name:'Copper',tv:'TVC:COPPER',fh:'OANDA:XCUUSD'},
-    {sym:'NATGAS',label:'GAS',name:'Natural Gas',tv:'TVC:NATURALGAS',fh:'OANDA:NATGASUSD'},
+const ASSETS = [
+  {g:'Commodities',t:'commodity',list:[
+    {s:'USOIL',l:'WTI',n:'Crude Oil',tv:'TVC:USOIL',fh:'OANDA:WTICOUSD'},
+    {s:'BRENT',l:'BRENT',n:'Brent Crude',tv:'TVC:UKOIL',fh:'OANDA:BCOUSD'},
+    {s:'GOLD',l:'GOLD',n:'Gold Spot',tv:'TVC:GOLD',fh:'OANDA:XAUUSD'},
+    {s:'SILVER',l:'SILVER',n:'Silver Spot',tv:'TVC:SILVER',fh:'OANDA:XAGUSD'},
+    {s:'PLATINUM',l:'PLAT',n:'Platinum',tv:'TVC:PLATINUM',fh:'OANDA:XPTUSD'},
+    {s:'COPPER',l:'COPPER',n:'Copper',tv:'TVC:COPPER',fh:'OANDA:XCUUSD'},
+    {s:'NATGAS',l:'GAS',n:'Natural Gas',tv:'TVC:NATURALGAS',fh:'OANDA:NATGASUSD'},
   ]},
-  {group:'Crypto',type:'crypto',assets:[
-    {sym:'BTCUSD',label:'BTC',name:'Bitcoin',tv:'BINANCE:BTCUSDT',fh:'BINANCE:BTCUSDT'},
-    {sym:'ETHUSD',label:'ETH',name:'Ethereum',tv:'BINANCE:ETHUSDT',fh:'BINANCE:ETHUSDT'},
-    {sym:'SOLUSD',label:'SOL',name:'Solana',tv:'BINANCE:SOLUSDT',fh:'BINANCE:SOLUSDT'},
-    {sym:'XRPUSD',label:'XRP',name:'XRP',tv:'BINANCE:XRPUSDT',fh:'BINANCE:XRPUSDT'},
-    {sym:'ADAUSD',label:'ADA',name:'Cardano',tv:'BINANCE:ADAUSDT',fh:'BINANCE:ADAUSDT'},
-    {sym:'AVAXUSD',label:'AVAX',name:'Avalanche',tv:'BINANCE:AVAXUSDT',fh:'BINANCE:AVAXUSDT'},
-    {sym:'LINKUSD',label:'LINK',name:'Chainlink',tv:'BINANCE:LINKUSDT',fh:'BINANCE:LINKUSDT'},
+  {g:'Crypto',t:'crypto',list:[
+    {s:'BTCUSD',l:'BTC',n:'Bitcoin',tv:'BINANCE:BTCUSDT',fh:'BINANCE:BTCUSDT'},
+    {s:'ETHUSD',l:'ETH',n:'Ethereum',tv:'BINANCE:ETHUSDT',fh:'BINANCE:ETHUSDT'},
+    {s:'SOLUSD',l:'SOL',n:'Solana',tv:'BINANCE:SOLUSDT',fh:'BINANCE:SOLUSDT'},
+    {s:'XRPUSD',l:'XRP',n:'XRP',tv:'BINANCE:XRPUSDT',fh:'BINANCE:XRPUSDT'},
+    {s:'ADAUSD',l:'ADA',n:'Cardano',tv:'BINANCE:ADAUSDT',fh:'BINANCE:ADAUSDT'},
+    {s:'AVAXUSD',l:'AVAX',n:'Avalanche',tv:'BINANCE:AVAXUSDT',fh:'BINANCE:AVAXUSDT'},
+    {s:'LINKUSD',l:'LINK',n:'Chainlink',tv:'BINANCE:LINKUSDT',fh:'BINANCE:LINKUSDT'},
   ]},
-  {group:'US Equities',type:'equity',assets:[
-    {sym:'AAPL',label:'AAPL',name:'Apple',tv:'NASDAQ:AAPL',fh:'AAPL'},
-    {sym:'MSFT',label:'MSFT',name:'Microsoft',tv:'NASDAQ:MSFT',fh:'MSFT'},
-    {sym:'NVDA',label:'NVDA',name:'NVIDIA',tv:'NASDAQ:NVDA',fh:'NVDA'},
-    {sym:'TSLA',label:'TSLA',name:'Tesla',tv:'NASDAQ:TSLA',fh:'TSLA'},
-    {sym:'META',label:'META',name:'Meta',tv:'NASDAQ:META',fh:'META'},
-    {sym:'GOOGL',label:'GOOGL',name:'Alphabet',tv:'NASDAQ:GOOGL',fh:'GOOGL'},
-    {sym:'AMZN',label:'AMZN',name:'Amazon',tv:'NASDAQ:AMZN',fh:'AMZN'},
-    {sym:'JPM',label:'JPM',name:'JPMorgan',tv:'NYSE:JPM',fh:'JPM'},
-    {sym:'GS',label:'GS',name:'Goldman Sachs',tv:'NYSE:GS',fh:'GS'},
-    {sym:'SPY',label:'SPY',name:'S&P 500 ETF',tv:'AMEX:SPY',fh:'SPY'},
+  {g:'US Equities',t:'equity',list:[
+    {s:'AAPL',l:'AAPL',n:'Apple',tv:'NASDAQ:AAPL',fh:'AAPL'},
+    {s:'MSFT',l:'MSFT',n:'Microsoft',tv:'NASDAQ:MSFT',fh:'MSFT'},
+    {s:'NVDA',l:'NVDA',n:'NVIDIA',tv:'NASDAQ:NVDA',fh:'NVDA'},
+    {s:'TSLA',l:'TSLA',n:'Tesla',tv:'NASDAQ:TSLA',fh:'TSLA'},
+    {s:'META',l:'META',n:'Meta',tv:'NASDAQ:META',fh:'META'},
+    {s:'GOOGL',l:'GOOGL',n:'Alphabet',tv:'NASDAQ:GOOGL',fh:'GOOGL'},
+    {s:'AMZN',l:'AMZN',n:'Amazon',tv:'NASDAQ:AMZN',fh:'AMZN'},
+    {s:'JPM',l:'JPM',n:'JPMorgan',tv:'NYSE:JPM',fh:'JPM'},
+    {s:'GS',l:'GS',n:'Goldman Sachs',tv:'NYSE:GS',fh:'GS'},
+    {s:'SPY',l:'SPY',n:'S&P 500 ETF',tv:'AMEX:SPY',fh:'SPY'},
   ]},
-  {group:'EU Equities',type:'eu-equity',assets:[
-    {sym:'ASML',label:'ASML',name:'ASML Holding',tv:'NASDAQ:ASML',fh:'ASML'},
-    {sym:'SAP',label:'SAP',name:'SAP SE',tv:'NYSE:SAP',fh:'SAP'},
-    {sym:'LVMHF',label:'LVMH',name:'LVMH',tv:'OTC:LVMHF',fh:'LVMHF'},
-    {sym:'SIEGY',label:'SIE',name:'Siemens',tv:'OTC:SIEGY',fh:'SIEGY'},
-    {sym:'NSRGY',label:'NESN',name:'Nestlé',tv:'OTC:NSRGY',fh:'NSRGY'},
+  {g:'EU Equities',t:'eu-equity',list:[
+    {s:'ASML',l:'ASML',n:'ASML Holding',tv:'NASDAQ:ASML',fh:'ASML'},
+    {s:'SAP',l:'SAP',n:'SAP SE',tv:'NYSE:SAP',fh:'SAP'},
+    {s:'LVMHF',l:'LVMH',n:'LVMH',tv:'OTC:LVMHF',fh:'LVMHF'},
+    {s:'SIEGY',l:'SIE',n:'Siemens',tv:'OTC:SIEGY',fh:'SIEGY'},
+    {s:'NSRGY',l:'NESN',n:'Nestlé',tv:'OTC:NSRGY',fh:'NSRGY'},
   ]},
 ];
-const ASSET_MAP = {};
-ALL_ASSETS.forEach(g => g.assets.forEach(a => { ASSET_MAP[a.sym] = {...a, type:g.type}; }));
+const AM = {};
+ASSETS.forEach(g => g.list.forEach(a => AM[a.s] = {...a, t:g.t}));
 
-const KEYWORDS = {
+const KW = {
   USOIL:['crude oil','wti','oil price','opec','petroleum','barrel'],
   BRENT:['brent','crude oil','opec','oil price'],
   GOLD:['gold','gold price','bullion','precious metals','xau'],
@@ -453,528 +513,426 @@ const KEYWORDS = {
   LVMHF:['lvmh','louis vuitton','luxury'],SIEGY:['siemens','industrial'],
   NSRGY:['nestle','nestlé'],
 };
-const FH_NEWS = {
-  USOIL:{cat:'general'},BRENT:{cat:'general'},GOLD:{cat:'general'},SILVER:{cat:'general'},
-  PLATINUM:{cat:'general'},COPPER:{cat:'general'},NATGAS:{cat:'general'},
-  BTCUSD:{cat:'crypto'},ETHUSD:{cat:'crypto'},SOLUSD:{cat:'crypto'},
-  XRPUSD:{cat:'crypto'},ADAUSD:{cat:'crypto'},AVAXUSD:{cat:'crypto'},LINKUSD:{cat:'crypto'},
-  AAPL:{sym:'AAPL'},MSFT:{sym:'MSFT'},NVDA:{sym:'NVDA'},TSLA:{sym:'TSLA'},
-  META:{sym:'META'},GOOGL:{sym:'GOOGL'},AMZN:{sym:'AMZN'},JPM:{sym:'JPM'},
-  GS:{sym:'GS'},SPY:{sym:'SPY'},ASML:{sym:'ASML'},SAP:{sym:'SAP'},
-  LVMHF:{sym:'LVMHF'},SIEGY:{sym:'SIEGY'},NSRGY:{sym:'NSRGY'},
+const FHN = {
+  USOIL:{c:'general'},BRENT:{c:'general'},GOLD:{c:'general'},SILVER:{c:'general'},
+  PLATINUM:{c:'general'},COPPER:{c:'general'},NATGAS:{c:'general'},
+  BTCUSD:{c:'crypto'},ETHUSD:{c:'crypto'},SOLUSD:{c:'crypto'},
+  XRPUSD:{c:'crypto'},ADAUSD:{c:'crypto'},AVAXUSD:{c:'crypto'},LINKUSD:{c:'crypto'},
+  AAPL:{q:'AAPL'},MSFT:{q:'MSFT'},NVDA:{q:'NVDA'},TSLA:{q:'TSLA'},
+  META:{q:'META'},GOOGL:{q:'GOOGL'},AMZN:{q:'AMZN'},JPM:{q:'JPM'},
+  GS:{q:'GS'},SPY:{q:'SPY'},ASML:{q:'ASML'},SAP:{q:'SAP'},
+  LVMHF:{q:'LVMHF'},SIEGY:{q:'SIEGY'},NSRGY:{q:'NSRGY'},
 };
 
-// ── STATE ──
-let current = null;
-let prices = {};
-let watchlist = [];
-let user = null;
-let allNews = [];
-let authMode = 'login';
-let deferredInstall = null;
-let votedPosts = new Set(JSON.parse(localStorage.getItem('signal_votes') || '[]'));
-let openReplies = new Set();
-let currentDetailTab = 'chart';
+// STATE
+let cur = null, prices = {}, watchlist = [], user = null, allNews = [];
+let votes = JSON.parse(localStorage.getItem('sv')||'{}');
+let authMode = 'login', deferredInstall = null;
 
-// ── BOOT ──
+// BOOT
 document.addEventListener('DOMContentLoaded', async () => {
   const {data:{session}} = await sb.auth.getSession();
   if (session) await onSignIn(session.user, false);
-  sb.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session) onSignIn(session.user, true);
-    if (event === 'SIGNED_OUT') onSignOut();
+  sb.auth.onAuthStateChange((ev,s) => {
+    if (ev==='SIGNED_IN'&&s) onSignIn(s.user,true);
+    if (ev==='SIGNED_OUT') onSignOut();
   });
-  renderMarkets();
-  renderWatchlist();
+  renderAssets();
   loadPrices();
   setInterval(loadPrices, 15000);
-  selectBySym('USOIL');
+  selectAsset('USOIL');
   setupPWA();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 });
 
-// ── PWA ──
-function setupPWA() {
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredInstall = e;
-    if (!localStorage.getItem('signal_install_dismissed')) {
-      setTimeout(() => document.getElementById('installBanner').classList.remove('hidden'), 3000);
-    }
+// PWA
+function setupPWA(){
+  window.addEventListener('beforeinstallprompt', e=>{
+    e.preventDefault(); deferredInstall=e;
+    if (!localStorage.getItem('sid')) setTimeout(()=>document.getElementById('installBar').classList.remove('hidden'),3000);
   });
-  // iOS hint
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = window.navigator.standalone;
-  if (isIOS && !isStandalone && !localStorage.getItem('signal_install_dismissed')) {
-    setTimeout(() => {
-      const b = document.getElementById('installBanner');
-      b.querySelector('.install-sub').textContent = 'Tap Share → Add to Home Screen';
-      b.querySelector('.install-btn').style.display = 'none';
-      b.classList.remove('hidden');
-    }, 3000);
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(isIOS&&!window.navigator.standalone&&!localStorage.getItem('sid')){
+    setTimeout(()=>{
+      document.getElementById('ibInstallBtn').style.display='none';
+      document.getElementById('installBar').classList.remove('hidden');
+    },3000);
   }
 }
-function triggerInstall() {
-  if (deferredInstall) { deferredInstall.prompt(); deferredInstall = null; }
-  document.getElementById('installBanner').classList.add('hidden');
-}
-function dismissInstall() {
-  localStorage.setItem('signal_install_dismissed', '1');
-  document.getElementById('installBanner').classList.add('hidden');
-}
+function triggerInstall(){ if(deferredInstall){deferredInstall.prompt();deferredInstall=null;} document.getElementById('installBar').classList.add('hidden'); }
+function dismissInstall(){ localStorage.setItem('sid','1'); document.getElementById('installBar').classList.add('hidden'); }
 
-// ── AUTH ──
-async function onSignIn(u, fresh) {
-  user = u;
-  const btn = document.getElementById('authBtn');
-  const name = u.email.split('@')[0];
-  btn.textContent = name.slice(0,8);
-  btn.classList.add('signed-in');
-  btn.onclick = signOut;
+// AUTH
+async function onSignIn(u,fresh){
+  user=u;
+  const btn=document.getElementById('authBtn');
+  btn.textContent=u.email.split('@')[0].slice(0,8);
+  btn.classList.add('on'); btn.onclick=doSignOut;
   await loadWatchlist();
-  renderMarkets(); renderWatchlist();
-  if (fresh) closeAuth();
+  renderAssets();
+  if(fresh) closeAuth();
 }
-function onSignOut() {
-  user = null; watchlist = [];
-  const btn = document.getElementById('authBtn');
-  btn.textContent = 'Sign in';
-  btn.classList.remove('signed-in');
-  btn.onclick = openAuth;
-  renderMarkets(); renderWatchlist();
-}
-async function loadWatchlist() {
-  if (!user) return;
-  const {data} = await sb.from('watchlists').select('symbols').eq('user_id', user.id).single();
-  watchlist = data?.symbols || [];
-}
-async function saveWatchlist() {
-  if (!user) return;
-  await sb.from('watchlists').upsert({user_id:user.id, symbols:watchlist, updated_at:new Date().toISOString()});
-}
-async function toggleWatch(sym, e) {
-  e.stopPropagation();
-  if (!user) { openAuth(); return; }
-  watchlist = watchlist.includes(sym) ? watchlist.filter(s=>s!==sym) : [...watchlist, sym];
-  await saveWatchlist();
-  renderMarkets(); renderWatchlist();
-}
-function openAuth() { document.getElementById('authModal').classList.remove('hidden'); }
-function closeAuth() { document.getElementById('authModal').classList.add('hidden'); }
-document.getElementById('authModal').addEventListener('click', e => { if(e.target.id==='authModal') closeAuth(); });
-function switchAuthTab(mode, btn) {
-  authMode = mode;
-  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('authSubmit').textContent = mode==='login' ? 'Sign in' : 'Create account';
-  document.getElementById('authMsg').textContent = '';
-}
-async function submitAuth() {
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const btn = document.getElementById('authSubmit');
-  const msg = document.getElementById('authMsg');
-  if (!email || !password) { msg.textContent='Fill in all fields.'; msg.className='form-msg err'; return; }
-  btn.disabled = true; btn.textContent = '...';
+function onSignOut(){ user=null; watchlist=[]; const btn=document.getElementById('authBtn'); btn.textContent='Sign in'; btn.classList.remove('on'); btn.onclick=openAuth; renderAssets(); }
+async function loadWatchlist(){ if(!user)return; const{data}=await sb.from('watchlists').select('symbols').eq('user_id',user.id).single(); watchlist=data?.symbols||[]; }
+async function saveWatchlist(){ if(!user)return; await sb.from('watchlists').upsert({user_id:user.id,symbols:watchlist,updated_at:new Date().toISOString()}); }
+async function toggleWatch(s,e){ e.stopPropagation(); if(!user){openAuth();return;} watchlist=watchlist.includes(s)?watchlist.filter(x=>x!==s):[...watchlist,s]; await saveWatchlist(); renderAssets(); renderMobWatchlist(); }
+function openAuth(){ document.getElementById('authModal').classList.remove('hidden'); }
+function closeAuth(){ document.getElementById('authModal').classList.add('hidden'); }
+document.getElementById('authModal').addEventListener('click',e=>{ if(e.target.id==='authModal') closeAuth(); });
+function setAuthMode(m,btn){ authMode=m; document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); document.getElementById('aSubmit').textContent=m==='login'?'Sign in':'Create account'; document.getElementById('aMsg').textContent=''; }
+async function doAuth(){
+  const email=document.getElementById('aEmail').value.trim();
+  const pass=document.getElementById('aPass').value;
+  const btn=document.getElementById('aSubmit'); const msg=document.getElementById('aMsg');
+  if(!email||!pass){msg.textContent='Fill in all fields.';msg.className='fm err';return;}
+  btn.disabled=true;btn.textContent='...';
   let error;
-  if (authMode === 'login') {
-    const r = await sb.auth.signInWithPassword({email, password});
-    error = r.error;
-  } else {
-    const r = await sb.auth.signUp({email, password});
-    error = r.error;
-    if (!error) {
-      msg.textContent = '✓ Check your email to confirm your account.';
-      msg.className = 'form-msg ok';
-      btn.disabled = false; btn.textContent = 'Create account';
-      document.getElementById('authEmail').value = '';
-      document.getElementById('authPassword').value = '';
-      return;
-    }
-  }
-  btn.disabled = false;
-  btn.textContent = authMode==='login' ? 'Sign in' : 'Create account';
-  if (error) { msg.textContent = error.message; msg.className = 'form-msg err'; }
+  if(authMode==='login'){const r=await sb.auth.signInWithPassword({email,password:pass});error=r.error;}
+  else{const r=await sb.auth.signUp({email,password:pass});error=r.error;if(!error){msg.textContent='✓ Check your email to confirm.';msg.className='fm ok';btn.disabled=false;btn.textContent='Create account';document.getElementById('aEmail').value='';document.getElementById('aPass').value='';return;}}
+  btn.disabled=false;btn.textContent=authMode==='login'?'Sign in':'Create account';
+  if(error){msg.textContent=error.message;msg.className='fm err';}
 }
-async function signOut() { await sb.auth.signOut(); }
+async function doSignOut(){ await sb.auth.signOut(); }
 
-// ── NAVIGATION ──
-let prevPage = 'markets';
-function showPage(name) {
-  if (!isMobile()) return;
-  prevPage = document.querySelector('.page.active')?.id?.replace('page-','') || 'markets';
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  const nb = document.getElementById('nav-' + name);
-  if (nb) nb.classList.add('active');
-}
-function goBack() {
-  if (isMobile()) showPage('markets');
-}
-function openDetail(sym) {
-  selectBySym(sym);
-  if (isMobile()) {
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-    document.getElementById('page-detail').classList.add('active');
-  }
-}
-
-// ── RENDER MARKETS ──
-function renderMarkets() {
-  const body = document.getElementById('marketsBody');
-  let html = '';
-  ALL_ASSETS.forEach((g, gi) => {
-    if (gi > 0) html += '<div class="divider"></div>';
-    html += `<div class="asset-group"><div class="group-label">${g.group}</div>`;
-    g.assets.forEach(a => { html += renderRow({...a, type:g.type}); });
-    html += '</div>';
+// RENDER ASSETS
+function renderAssets(){
+  const dkEl=document.getElementById('desktopAssets');
+  const mobEl=document.getElementById('mobAssets');
+  let html='';
+  ASSETS.forEach((g,gi)=>{
+    if(gi>0) html+='<div class="divider"></div>';
+    html+=`<div class="grp-label">${g.g}</div>`;
+    g.list.forEach(a=>{ html+=rowHtml({...a,t:g.t}); });
   });
-  body.innerHTML = html;
-  if (current) {
-    const el = body.querySelector(`[data-sym="${current.sym}"]`);
-    if (el) el.classList.add('active');
-  }
-  Object.keys(prices).forEach(sym => updateRowPrices(sym, prices[sym]));
+  dkEl.innerHTML=html; mobEl.innerHTML=html;
+  renderMobWatchlist();
+  if(cur){ document.querySelectorAll(`[data-s="${cur.s}"]`).forEach(r=>r.classList.add('active')); }
+  Object.keys(prices).forEach(s=>applyPrice(s,prices[s]));
 }
 
-function renderWatchlist() {
-  const body = document.getElementById('watchlistBody');
-  if (!user) {
-    body.innerHTML = `<div class="watchlist-empty"><div class="wl-icon">★</div><div>Sign in to save your watchlist</div><button onclick="openAuth()" style="margin-top:12px;font-family:var(--mono);font-size:11px;padding:8px 20px;border:1px solid var(--border2);background:none;color:var(--text2);border-radius:5px;cursor:pointer;">Sign in</button></div>`;
-    return;
-  }
-  if (watchlist.length === 0) {
-    body.innerHTML = `<div class="watchlist-empty"><div class="wl-icon">☆</div><div>Your watchlist is empty.<br>Tap ★ next to any asset to add it.</div></div>`;
-    return;
-  }
-  let html = '<div class="asset-group">';
-  watchlist.forEach(sym => {
-    const a = ASSET_MAP[sym];
-    if (a) html += renderRow({...a});
-  });
-  html += '</div>';
-  body.innerHTML = html;
-  Object.keys(prices).forEach(sym => updateRowPrices(sym, prices[sym]));
+function renderMobWatchlist(){
+  const el=document.getElementById('mobWatchlist');
+  if(!user){el.innerHTML=`<div class="wl-empty"><div class="wl-empty-icon">★</div><div>Sign in to save your watchlist</div><button onclick="openAuth()" style="margin-top:12px;font-family:var(--mono);font-size:11px;padding:8px 20px;border:1px solid var(--border2);background:none;color:var(--text2);border-radius:5px;cursor:pointer;">Sign in</button></div>`;return;}
+  if(!watchlist.length){el.innerHTML=`<div class="wl-empty"><div class="wl-empty-icon">☆</div><div>Your watchlist is empty.<br>Tap ★ to add assets.</div></div>`;return;}
+  let html='';
+  watchlist.forEach(s=>{const a=AM[s];if(a)html+=rowHtml(a);});
+  el.innerHTML=html;
+  Object.keys(prices).forEach(s=>applyPrice(s,prices[s]));
 }
 
-function renderRow(a) {
-  const isWatched = watchlist.includes(a.sym);
-  return `<div class="asset-row" data-sym="${a.sym}" data-type="${a.type}" onclick="openDetail('${a.sym}')">
-    <div class="ar-left">
-      <div class="ar-icon ${a.type}">${a.label.slice(0,4)}</div>
-      <div class="ar-info">
-        <span class="ar-sym">${a.label}</span>
-        <span class="ar-name">${a.name}</span>
-      </div>
-    </div>
-    <div class="ar-right">
-      <div class="ar-prices">
-        <div class="ar-price" id="p-${a.sym}">—</div>
-        <div class="ar-chg flat" id="c-${a.sym}">—</div>
-      </div>
-      <button class="watch-btn ${isWatched?'on':''}" onclick="toggleWatch('${a.sym}',event)">${isWatched?'★':'☆'}</button>
-    </div>
+function rowHtml(a){
+  const w=watchlist.includes(a.s);
+  return `<div class="asset-row" data-s="${a.s}" data-t="${a.t}" onclick="selectAndOpen('${a.s}')">
+    <div class="ar-icon ${a.t}">${a.l.slice(0,4)}</div>
+    <div class="ar-info"><div class="ar-sym">${a.l}</div><div class="ar-name">${a.n}</div></div>
+    <div class="ar-prices"><div class="ar-price" id="p-${a.s}">—</div><div class="ar-chg flat" id="c-${a.s}">—</div></div>
+    <button class="wbtn ${w?'on':''}" onclick="toggleWatch('${a.s}',event)">${w?'★':'☆'}</button>
   </div>`;
 }
 
-// ── SELECT ASSET ──
-function selectBySym(sym) {
-  const a = ASSET_MAP[sym];
-  if (!a) return;
-  current = a;
-  // Update detail header
-  document.getElementById('dSym').textContent = a.label;
-  document.getElementById('dName').textContent = a.name;
-  const p = prices[sym];
-  if (p) { document.getElementById('dPrice').textContent = fmt(p.c, a.type); renderDetailChg(p); }
-  else { document.getElementById('dPrice').textContent = '—'; }
-  // Chart
-  const tvSym = encodeURIComponent(a.tv);
-  document.getElementById('tvChart').src = `https://s.tradingview.com/widgetembed/?symbol=${tvSym}&interval=D&hidesidetoolbar=0&saveimage=0&toolbarbg=111113&theme=dark&style=1&locale=en&withdateranges=1&allow_symbol_change=0&studies=RSI%40tv-basicstudies%1FMACD%40tv-basicstudies`;
-  // Active state
-  document.querySelectorAll('.asset-row').forEach(r => r.classList.remove('active'));
-  document.querySelectorAll(`[data-sym="${sym}"]`).forEach(r => r.classList.add('active'));
-  // Load data
-  loadNews(sym);
-  loadCommunity(sym);
-  // Desktop news title
-  document.getElementById('desktopNewsTitle').textContent = a.label + ' · News';
-  // Reset detail tab to chart
-  switchDetailTab('chart', document.querySelector('.dtab[data-tab="chart"]'));
+// MOBILE NAV
+function mobShowPage(name){
+  document.querySelectorAll('.mob-page').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('mob-'+name).classList.add('show');
+  document.getElementById('nb-'+name).classList.add('on');
 }
-
-function renderDetailChg(p) {
-  const up = p.dp >= 0;
-  const el = document.getElementById('dChg');
-  el.textContent = (up?'+':'') + (p.dp||0).toFixed(2) + '%';
-  el.className = 'detail-chg ' + (up?'up':'dn');
-}
-
-function switchDetailTab(tab, btn) {
-  currentDetailTab = tab;
-  document.querySelectorAll('.dtab').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  document.querySelectorAll('.detail-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-}
-
-// ── PRICES ──
-async function loadPrices() {
-  await Promise.allSettled(Object.values(ASSET_MAP).map(async a => {
-    try {
-      const r = await fetch(`${API}/api/quote?symbol=${encodeURIComponent(a.fh)}`);
-      const d = await r.json();
-      if (d.c && d.c > 0) {
-        prices[a.sym] = d;
-        updateRowPrices(a.sym, d);
-        if (current?.sym === a.sym) {
-          document.getElementById('dPrice').textContent = fmt(d.c, a.type);
-          renderDetailChg(d);
-        }
-      }
-    } catch(e) {}
-  }));
-  updateTicker();
-}
-
-function fmt(v, type) {
-  if (!v || v === 0) return '—';
-  if (type==='crypto' && v>=1000) return '$'+v.toLocaleString('en-US',{maximumFractionDigits:0});
-  if (type==='crypto') return '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4});
-  return '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-}
-
-function updateRowPrices(sym, d) {
-  const pEl = document.getElementById('p-' + sym);
-  const cEl = document.getElementById('c-' + sym);
-  if (!pEl) return;
-  const type = ASSET_MAP[sym]?.type || 'equity';
-  const up = d.dp >= 0;
-  pEl.textContent = fmt(d.c, type);
-  if (cEl) { cEl.textContent = (up?'+':'') + (d.dp||0).toFixed(2) + '%'; cEl.className = 'ar-chg ' + (up?'up':'dn'); }
-}
-
-function updateTicker() {
-  const syms = ['USOIL','GOLD','BTCUSD','ETHUSD','SOLUSD','AAPL','NVDA','TSLA','META','MSFT','GOOGL','SPY'];
-  let html = '';
-  syms.forEach(sym => {
-    const d = prices[sym]; const a = ASSET_MAP[sym];
-    if (!d || !a) return;
-    const up = d.dp >= 0;
-    html += `<span class="t-item" onclick="openDetail('${sym}')"><span class="t-sym">${a.label}</span><span class="t-val">${fmt(d.c,a.type)}</span><span class="t-chg ${up?'up':'dn'}">${up?'+':''}${(d.dp||0).toFixed(2)}%</span></span>`;
-  });
-  const t = document.getElementById('tickerTrack');
-  t.innerHTML = html + html;
-}
-
-// ── NEWS ──
-async function loadNews(sym) {
-  const info = FH_NEWS[sym];
-  if (!info) return;
-  const setFeed = html => {
-    document.getElementById('newsFeed').innerHTML = html;
-    document.getElementById('desktopNewsFeed').innerHTML = html;
-  };
-  const setCount = n => { document.getElementById('desktopNewsCount').textContent = n; };
-  setFeed('<div class="empty-state"><div class="dots"><span></span><span></span><span></span></div></div>');
-  setCount('—');
-  try {
-    let articles = [];
-    if (info.sym) {
-      const r = await fetch(`${API}/api/news?symbol=${info.sym}`);
-      articles = await r.json();
-    } else {
-      const r = await fetch(`${API}/api/market-news?category=${info.cat}`);
-      const raw = await r.json();
-      const kws = KEYWORDS[sym] || [];
-      articles = raw.filter(a => {
-        const t = ((a.headline||'')+(a.summary||'')).toLowerCase();
-        return kws.some(k => t.includes(k));
-      });
-      if (articles.length < 5) articles = [...articles, ...raw.filter(a=>!articles.includes(a)).slice(0,10)];
-    }
-    allNews = articles;
-    const html = renderNewsHTML(articles);
-    setFeed(html);
-    setCount(articles.length);
-  } catch(e) {
-    setFeed('<div class="empty-state" style="color:var(--red)">Failed to load news.</div>');
+function mobBack(){ mobShowPage('markets'); }
+function selectAndOpen(s){
+  selectAsset(s);
+  if(window.innerWidth<768){
+    document.querySelectorAll('.mob-page').forEach(p=>p.classList.remove('show'));
+    document.getElementById('mob-detail').classList.add('show');
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+    // reset mobile tabs to chart
+    mobTab('chart', document.querySelector('.mob-tab'));
   }
 }
+function mobTab(t,btn){
+  document.querySelectorAll('.mob-tab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.mob-tab-pane').forEach(p=>p.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  document.getElementById('mob-tp-'+t).classList.add('on');
+}
+function dkTab(t,btn){
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('tp-'+t).classList.add('on');
+}
 
-function renderNewsHTML(articles) {
-  if (!articles.length) return '<div class="empty-state">No news found.</div>';
-  return articles.map(a => `
+// SELECT ASSET
+function selectAsset(s){
+  const a=AM[s]; if(!a)return;
+  cur=a;
+  // active state
+  document.querySelectorAll('.asset-row').forEach(r=>r.classList.remove('active'));
+  document.querySelectorAll(`[data-s="${s}"]`).forEach(r=>r.classList.add('active'));
+  // desktop header
+  document.getElementById('dkSym').textContent=a.l;
+  document.getElementById('dkName').textContent=a.n;
+  document.getElementById('dkBadge').textContent=a.t.replace('eu-equity','EU EQUITY').replace('equity','EQUITY').replace('commodity','COMMODITY').replace('crypto','CRYPTO').toUpperCase();
+  document.getElementById('dkNewsTitle').textContent=a.l+' · News';
+  // mobile header
+  document.getElementById('mobSym').textContent=a.l;
+  document.getElementById('mobName').textContent=a.n;
+  // prices
+  const p=prices[s];
+  if(p){ setHeaderPrice(p,a.t); } else { document.getElementById('dkPrice').textContent='—'; document.getElementById('mobPrice').textContent='—'; }
+  // chart
+  const src=`https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(a.tv)}&interval=D&hidesidetoolbar=0&saveimage=0&toolbarbg=111113&theme=dark&style=1&locale=en&withdateranges=1&allow_symbol_change=0&studies=RSI%40tv-basicstudies%1FMACD%40tv-basicstudies`;
+  document.getElementById('dkChart').src=src;
+  document.getElementById('mobChart').src=src;
+  // data
+  fetchNews(s);
+  fetchCommunity(s);
+}
+
+function setHeaderPrice(p,t){
+  const up=p.dp>=0;
+  document.getElementById('dkPrice').textContent=fmt(p.c,t);
+  const dkC=document.getElementById('dkChg');
+  dkC.textContent=(up?'+':'')+p.dp.toFixed(2)+'%';
+  dkC.className='mh-chg '+(up?'up':'dn');
+  document.getElementById('mobPrice').textContent=fmt(p.c,t);
+  const mC=document.getElementById('mobChg');
+  mC.textContent=(up?'+':'')+p.dp.toFixed(2)+'%';
+  mC.className='mob-chg '+(up?'up':'dn');
+}
+
+// PRICES
+async function loadPrices(){
+  await Promise.allSettled(Object.values(AM).map(async a=>{
+    try{
+      const r=await fetch(`${API}/api/quote?symbol=${encodeURIComponent(a.fh)}`);
+      const d=await r.json();
+      if(d.c&&d.c>0){ prices[a.s]=d; applyPrice(a.s,d); if(cur?.s===a.s) setHeaderPrice(d,a.t); }
+    }catch(e){}
+  }));
+  buildTicker();
+}
+function fmt(v,t){
+  if(!v||v===0)return'—';
+  if(t==='crypto'&&v>=1000)return'$'+v.toLocaleString('en-US',{maximumFractionDigits:0});
+  if(t==='crypto')return'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4});
+  return'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function applyPrice(s,d){
+  document.querySelectorAll(`#p-${s}`).forEach(el=>el.textContent=fmt(d.c,AM[s]?.t||'equity'));
+  const up=d.dp>=0;
+  document.querySelectorAll(`#c-${s}`).forEach(el=>{
+    el.textContent=(up?'+':'')+d.dp.toFixed(2)+'%';
+    el.className='ar-chg '+(up?'up':'dn');
+  });
+}
+function buildTicker(){
+  const syms=['USOIL','GOLD','BTCUSD','ETHUSD','SOLUSD','AAPL','NVDA','TSLA','META','MSFT','GOOGL','SPY'];
+  let html='';
+  syms.forEach(s=>{
+    const d=prices[s],a=AM[s]; if(!d||!a)return;
+    const up=d.dp>=0;
+    html+=`<span class="t-item" onclick="selectAndOpen('${s}')"><span class="t-sym">${a.l}</span><span class="t-val">${fmt(d.c,a.t)}</span><span class="t-chg ${up?'up':'dn'}">${up?'+':''}${d.dp.toFixed(2)}%</span></span>`;
+  });
+  const t=document.getElementById('tickerTrack');
+  t.innerHTML=html+html;
+}
+
+// NEWS
+async function fetchNews(s){
+  const info=FHN[s]; if(!info)return;
+  const loading='<div class="empty"><div class="dots"><span></span><span></span><span></span></div></div>';
+  document.getElementById('dkNewsFeed').innerHTML=loading;
+  document.getElementById('mobNewsFeed').innerHTML=loading;
+  document.getElementById('dkNewsCount').textContent='—';
+  try{
+    let arts=[];
+    if(info.q){
+      const r=await fetch(`${API}/api/news?symbol=${info.q}`);
+      arts=await r.json();
+    }else{
+      const r=await fetch(`${API}/api/market-news?category=${info.c}`);
+      const raw=await r.json();
+      const kws=KW[s]||[];
+      arts=raw.filter(a=>{const t=((a.headline||'')+(a.summary||'')).toLowerCase();return kws.some(k=>t.includes(k));});
+      if(arts.length<5) arts=[...arts,...raw.filter(a=>!arts.includes(a)).slice(0,10)];
+    }
+    allNews=arts;
+    const html=newsHtml(arts);
+    document.getElementById('dkNewsFeed').innerHTML=html;
+    document.getElementById('mobNewsFeed').innerHTML=html;
+    document.getElementById('dkNewsCount').textContent=arts.length;
+  }catch(e){
+    const err='<div class="empty" style="color:var(--red)">Failed to load news.</div>';
+    document.getElementById('dkNewsFeed').innerHTML=err;
+    document.getElementById('mobNewsFeed').innerHTML=err;
+  }
+}
+function newsHtml(arts){
+  if(!arts.length)return'<div class="empty">No news found.</div>';
+  return arts.map(a=>`
     <div class="news-item" onclick="window.open('${(a.url||'#').replace(/'/g,"\\'")}','_blank')">
-      <div class="ni-meta"><span class="ni-src">${a.source||'Unknown'}</span><span class="ni-age">${timeAgo(a.datetime||0)}</span></div>
+      <div class="ni-meta"><span class="ni-src">${a.source||'Unknown'}</span><span class="ni-age">${ago(a.datetime||0)}</span></div>
       <div class="ni-hl">${a.headline||''}</div>
       ${a.summary?`<div class="ni-sum">${a.summary.slice(0,140)}…</div>`:''}
     </div>`).join('');
 }
-
-function filterSearch(q) {
-  if (!q.trim()) { document.getElementById('desktopNewsFeed').innerHTML = renderNewsHTML(allNews); return; }
-  const ql = q.toLowerCase();
-  const filtered = allNews.filter(a => ((a.headline||'')+(a.summary||'')).toLowerCase().includes(ql));
-  document.getElementById('desktopNewsFeed').innerHTML = renderNewsHTML(filtered);
+function searchNews(q){
+  if(!q.trim()){document.getElementById('dkNewsFeed').innerHTML=newsHtml(allNews);return;}
+  const ql=q.toLowerCase();
+  document.getElementById('dkNewsFeed').innerHTML=newsHtml(allNews.filter(a=>((a.headline||'')+(a.summary||'')).toLowerCase().includes(ql)));
+}
+function ago(ts){
+  const m=Math.floor((Date.now()-ts*1000)/60000);
+  if(m<1)return'now';if(m<60)return m+'m';if(m<1440)return Math.floor(m/60)+'h';return Math.floor(m/1440)+'d';
 }
 
-function timeAgo(ts) {
-  const m = Math.floor((Date.now() - ts*1000)/60000);
-  if (m<1) return 'now'; if (m<60) return m+'m';
-  if (m<1440) return Math.floor(m/60)+'h'; return Math.floor(m/1440)+'d';
-}
-
-// ── COMMUNITY ──
-async function loadCommunity(sym) {
-  const feed = document.getElementById('communityFeed');
-  const loginArea = user
-    ? `<div class="comm-composer">
-        <textarea class="comm-textarea" id="commInput" placeholder="Share your thoughts on ${sym}..." maxlength="500" oninput="updateCommChars(this)"></textarea>
-        <div class="comm-footer">
-          <span class="comm-chars" id="commChars">500</span>
-          <button class="comm-post-btn" onclick="submitPost('${sym}')">Post</button>
-        </div>
-       </div>`
-    : `<div class="comm-login-prompt">
-        <span class="comm-login-txt">Sign in to join the discussion</span>
-        <button class="comm-login-btn" onclick="openAuth()">Sign in</button>
-       </div>`;
-
-  feed.innerHTML = loginArea + '<div id="postsContainer"><div class="empty-state"><div class="dots"><span></span><span></span><span></span></div></div></div>';
-
-  try {
-    const r = await fetch(`${API}/api/community?action=posts&sym=${sym}`);
-    const posts = await r.json();
-    renderPosts(posts, sym);
-  } catch(e) {
-    document.getElementById('postsContainer').innerHTML = '<div class="empty-state" style="color:var(--red)">Failed to load posts.</div>';
+// COMMUNITY
+async function fetchCommunity(s){
+  const composer=communityComposerHtml(s);
+  const loading=composer+'<div id="postsWrap"><div class="empty"><div class="dots"><span></span><span></span><span></span></div></div></div>';
+  document.getElementById('dkCommunity').innerHTML=loading;
+  document.getElementById('mobCommunity').innerHTML=loading;
+  try{
+    const r=await fetch(`${API}/api/community?action=posts&sym=${s}`);
+    const posts=await r.json();
+    const html=postsHtml(posts,s);
+    document.querySelectorAll('#postsWrap').forEach(el=>el.innerHTML=html);
+  }catch(e){
+    document.querySelectorAll('#postsWrap').forEach(el=>el.innerHTML='<div class="empty" style="color:var(--red)">Failed to load.</div>');
   }
 }
-
-function renderPosts(posts, sym) {
-  const container = document.getElementById('postsContainer');
-  if (!Array.isArray(posts) || posts.length === 0) {
-    container.innerHTML = '<div class="empty-state">No posts yet.<br>Be the first to share your thoughts.</div>';
-    return;
-  }
-  container.innerHTML = posts.map(p => renderPost(p, sym)).join('');
+function communityComposerHtml(s){
+  if(!user)return`<div class="comm-login"><span>Sign in to join the discussion</span><button onclick="openAuth()">Sign in</button></div>`;
+  return`<div class="comm-box">
+    <textarea class="comm-ta" id="commTA" placeholder="Share your thoughts on ${s}..." maxlength="500" oninput="document.getElementById('commChars').textContent=500-this.value.length"></textarea>
+    <div class="comm-row"><span class="comm-chars" id="commChars">500</span><button class="comm-post" onclick="submitPost('${s}')">Post</button></div>
+  </div>`;
 }
-
-function renderPost(p, sym) {
-  const voted = votedPosts.has(p.id);
-  const replyCount = p.community_replies?.[0]?.count || 0;
-  const initials = p.username.slice(0,2).toUpperCase();
-  return `<div class="post-card" id="post-${p.id}">
-    <div class="post-meta">
-      <div class="post-avatar">${initials}</div>
-      <span class="post-user">${p.username}</span>
-      <span class="post-time">${timeAgo(new Date(p.created_at).getTime()/1000)}</span>
+function postsHtml(posts,s){
+  if(!Array.isArray(posts)||!posts.length) return'<div class="empty">No posts yet. Be the first to share your thoughts.</div>';
+  return posts.map(p=>postHtml(p,s)).join('');
+}
+function postHtml(p,s){
+  const myVote=votes[p.id]||0;
+  const score=(p.upvotes||0)-(p.downvotes||0);
+  const scoreClass=score>0?'pos':score<0?'neg':'';
+  const initials=p.username.slice(0,2).toUpperCase();
+  const replyCount=p.community_replies?.[0]?.count||0;
+  return`<div class="post-card" id="pc-${p.id}">
+    <div class="post-votes">
+      <button class="vote-btn ${myVote===1?'up-on':''}" onclick="vote('${p.id}',1,'${s}')">▲</button>
+      <span class="vote-score ${scoreClass}" id="vs-${p.id}">${score}</span>
+      <button class="vote-btn ${myVote===-1?'dn-on':''}" onclick="vote('${p.id}',-1,'${s}')">▼</button>
     </div>
-    <div class="post-body">${escHtml(p.content)}</div>
-    <div class="post-actions">
-      <button class="post-upvote ${voted?'voted':''}" onclick="upvote('${p.id}','${sym}')">
-        ▲ <span id="votes-${p.id}">${p.upvotes||0}</span>
-      </button>
-      <button class="post-reply-btn" onclick="toggleReplies('${p.id}','${sym}')">
-        💬 ${replyCount} ${replyCount===1?'reply':'replies'}
-      </button>
+    <div class="post-body">
+      <div class="post-meta">
+        <div class="post-av">${initials}</div>
+        <span class="post-user">${p.username}</span>
+        <span class="post-time">${ago(new Date(p.created_at).getTime()/1000)}</span>
+      </div>
+      <div class="post-text">${esc(p.content)}</div>
+      <div class="post-actions">
+        <button class="post-action-btn" onclick="toggleReplies('${p.id}','${s}')">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          ${replyCount} ${replyCount===1?'Reply':'Replies'}
+        </button>
+      </div>
+      <div class="replies-wrap" id="rw-${p.id}" style="display:none;"></div>
     </div>
-    <div class="replies-section" id="replies-${p.id}" style="display:none;"></div>
   </div>`;
 }
 
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function updateCommChars(el) {
-  document.getElementById('commChars').textContent = 500 - el.value.length;
-}
-
-async function submitPost(sym) {
-  if (!user) { openAuth(); return; }
-  const input = document.getElementById('commInput');
-  const content = input.value.trim();
-  if (!content) return;
-  const username = user.email.split('@')[0];
-  try {
-    await fetch(`${API}/api/community?action=post`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({sym, content, username}),
+async function vote(postId,dir,s){
+  const prev=votes[postId]||0;
+  // toggle off if same direction
+  const newDir=prev===dir?0:dir;
+  votes[postId]=newDir;
+  localStorage.setItem('sv',JSON.stringify(votes));
+  // optimistic UI
+  const p=await getPostScore(postId);
+  document.querySelectorAll(`#vs-${postId}`).forEach(el=>{
+    const sc=(p||0);
+    el.textContent=sc; el.className='vote-score '+(sc>0?'pos':sc<0?'neg':'');
+  });
+  document.querySelectorAll(`#pc-${postId} .vote-btn`).forEach((btn,i)=>{
+    const d=i===0?1:-1; btn.className='vote-btn '+(newDir===d?(d===1?'up-on':'dn-on'):'');
+  });
+  // send to server
+  try{
+    await fetch(`${API}/api/community?action=vote`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({post_id:postId,direction:newDir,prev_direction:prev}),
     });
-    input.value = '';
-    document.getElementById('commChars').textContent = '500';
-    loadCommunity(sym);
-  } catch(e) {}
+  }catch(e){}
 }
 
-async function upvote(postId, sym) {
-  if (votedPosts.has(postId)) return;
-  votedPosts.add(postId);
-  localStorage.setItem('signal_votes', JSON.stringify([...votedPosts]));
-  const el = document.getElementById('votes-' + postId);
-  if (el) el.textContent = parseInt(el.textContent) + 1;
-  document.querySelector(`button.post-upvote[onclick*="${postId}"]`)?.classList.add('voted');
-  try {
-    await fetch(`${API}/api/community?action=upvote`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({post_id: postId}),
+async function getPostScore(postId){
+  try{
+    const r=await fetch(`${API}/api/community?action=posts&sym=${cur?.s||''}`);
+    const posts=await r.json();
+    const p=posts.find(x=>x.id===postId);
+    return p?(p.upvotes||0)-(p.downvotes||0):null;
+  }catch{return null;}
+}
+
+async function submitPost(s){
+  if(!user){openAuth();return;}
+  const ta=document.getElementById('commTA');
+  const content=ta?.value.trim(); if(!content)return;
+  const username=user.email.split('@')[0];
+  try{
+    await fetch(`${API}/api/community?action=post`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sym:s,content,username}),
     });
-  } catch(e) {}
+    fetchCommunity(s);
+  }catch(e){}
 }
 
-async function toggleReplies(postId, sym) {
-  const section = document.getElementById('replies-' + postId);
-  if (section.style.display !== 'none') { section.style.display = 'none'; return; }
-  section.style.display = 'block';
-  section.innerHTML = '<div class="empty-state" style="padding:8px 0;"><div class="dots"><span></span><span></span><span></span></div></div>';
-  try {
-    const r = await fetch(`${API}/api/community?action=replies&post_id=${postId}`);
-    const replies = await r.json();
-    const loginReply = user
-      ? `<div class="reply-composer">
-          <input class="reply-input" id="reply-input-${postId}" placeholder="Reply..." maxlength="300">
-          <button class="reply-submit" onclick="submitReply('${postId}','${sym}')">Send</button>
-         </div>`
-      : '';
-    const repliesHtml = Array.isArray(replies) && replies.length > 0
-      ? replies.map(rep => `
-          <div class="reply-card">
-            <div class="reply-line"></div>
-            <div class="reply-content">
-              <div class="reply-meta">
-                <span class="reply-user">${rep.username}</span>
-                <span class="reply-time">${timeAgo(new Date(rep.created_at).getTime()/1000)}</span>
-              </div>
-              <div class="reply-body">${escHtml(rep.content)}</div>
-            </div>
-          </div>`).join('')
-      : '<div style="padding:8px 0;font-size:12px;color:var(--text3);">No replies yet.</div>';
-    section.innerHTML = repliesHtml + loginReply;
-  } catch(e) {
-    section.innerHTML = '<div style="color:var(--red);font-size:11px;padding:8px 0;">Failed to load replies.</div>';
-  }
+async function toggleReplies(postId,s){
+  const wrap=document.getElementById('rw-'+postId);
+  if(!wrap)return;
+  if(wrap.style.display!=='none'){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  wrap.innerHTML='<div style="padding:8px 0;"><div class="dots"><span></span><span></span><span></span></div></div>';
+  try{
+    const r=await fetch(`${API}/api/community?action=replies&post_id=${postId}`);
+    const replies=await r.json();
+    const replHtml=Array.isArray(replies)&&replies.length
+      ?replies.map(rep=>`
+        <div class="reply-item">
+          <div class="reply-line"></div>
+          <div class="reply-inner">
+            <div class="reply-meta"><span class="reply-user">${rep.username}</span><span class="reply-time">${ago(new Date(rep.created_at).getTime()/1000)}</span></div>
+            <div class="reply-text">${esc(rep.content)}</div>
+          </div>
+        </div>`).join('')
+      :'<div style="font-size:11px;color:var(--text3);padding:4px 0;">No replies yet.</div>';
+    const replyBox=user
+      ?`<div class="reply-composer"><input class="reply-in" id="ri-${postId}" placeholder="Reply..." maxlength="300"><button class="reply-send" onclick="submitReply('${postId}','${s}')">Send</button></div>`
+      :'';
+    wrap.innerHTML=replHtml+replyBox;
+  }catch(e){wrap.innerHTML='<div style="color:var(--red);font-size:11px;padding:4px 0;">Failed to load.</div>';}
 }
 
-async function submitReply(postId, sym) {
-  if (!user) return;
-  const input = document.getElementById('reply-input-' + postId);
-  const content = input.value.trim();
-  if (!content) return;
-  const username = user.email.split('@')[0];
-  try {
-    await fetch(`${API}/api/community?action=reply`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({post_id: postId, content, username}),
+async function submitReply(postId,s){
+  if(!user)return;
+  const inp=document.getElementById('ri-'+postId);
+  const content=inp?.value.trim(); if(!content)return;
+  const username=user.email.split('@')[0];
+  try{
+    await fetch(`${API}/api/community?action=reply`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({post_id:postId,content,username}),
     });
-    input.value = '';
-    toggleReplies(postId, sym);
-    setTimeout(() => toggleReplies(postId, sym), 100);
-  } catch(e) {}
+    inp.value='';
+    const wrap=document.getElementById('rw-'+postId);
+    if(wrap){wrap.style.display='none';}
+    setTimeout(()=>toggleReplies(postId,s),50);
+  }catch(e){}
 }
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 </body>
 </html>
