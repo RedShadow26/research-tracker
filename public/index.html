@@ -195,7 +195,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .mob-tab.on{color:var(--text);border-bottom-color:var(--text);}
 .mob-tab-pane{display:none;}
 .mob-tab-pane.on{display:block;}
-.mob-chart-wrap{height:300px;}
+.mob-chart-wrap{height:380px;}
 .mob-chart-wrap iframe{width:100%;height:100%;border:none;display:block;}
 
 /* ─── COMMUNITY ─── */
@@ -211,19 +211,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .comm-login span{font-size:12px;color:var(--text3);}
 .comm-login button{font-family:var(--mono);font-size:10px;padding:5px 12px;border:1px solid var(--border2);background:none;color:var(--text2);border-radius:4px;cursor:pointer;}
 
-/* Post card — Reddit style */
-.post-card{display:flex;gap:0;border-bottom:1px solid var(--border);}
-/* vote column */
-.post-votes{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px 10px 10px;background:var(--surface2);flex-shrink:0;width:36px;}
-.vote-btn{width:20px;height:20px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;border-radius:3px;font-size:13px;color:var(--text3);-webkit-tap-highlight-color:transparent;transition:color .15s;}
-.vote-btn:hover{background:var(--surface3);}
-.vote-btn.up-on{color:var(--amber);}
-.vote-btn.dn-on{color:var(--blue);}
-.vote-score{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text2);}
-.vote-score.pos{color:var(--amber);}
-.vote-score.neg{color:var(--blue);}
+.post-card{display:block;border-bottom:1px solid var(--border);}
 /* post body */
-.post-body{flex:1;padding:10px 12px 10px 8px;min-width:0;}
+.post-votes{display:none;}
+.post-body{flex:1;padding:12px 14px;min-width:0;}
+/* vote pill */
+.vpill{display:inline-flex;align-items:center;height:30px;border:1px solid var(--border2);border-radius:6px;overflow:hidden;background:var(--surface3);user-select:none;}
+.vpill-up,.vpill-dn{display:flex;align-items:center;justify-content:center;width:40px;height:100%;background:none;border:none;cursor:pointer;font-size:15px;color:var(--text3);transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.vpill-up:hover{background:rgba(245,158,11,.15);color:var(--amber);}
+.vpill-dn:hover{background:rgba(96,165,250,.15);color:var(--blue);}
+.vpill-up.on{background:rgba(245,158,11,.18);color:var(--amber);}
+.vpill-dn.on{background:rgba(96,165,250,.18);color:var(--blue);}
+.vpill-score{min-width:32px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text2);border-left:1px solid var(--border2);border-right:1px solid var(--border2);height:100%;display:flex;align-items:center;justify-content:center;}
+.vpill-score.pos{color:var(--amber);}
+.vpill-score.neg{color:var(--blue);}
 .post-meta{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
 .post-av{width:20px;height:20px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text2);flex-shrink:0;}
 .post-user{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text2);}
@@ -325,14 +326,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
         <div class="mh-chg" id="dkChg">—</div>
       </div>
     </div>
-    <div class="main-tabs">
-      <button class="mtab on" data-t="chart" onclick="dkTab('chart',this)">Chart</button>
-      <button class="mtab" data-t="community" onclick="dkTab('community',this)">Community</button>
-    </div>
-    <div class="tab-pane on" id="tp-chart">
-      <iframe id="dkChart" src="" title="Chart" allowtransparency="true"></iframe>
-    </div>
-    <div class="tab-pane" id="tp-community" style="overflow-y:auto;">
+    <div class="tab-pane on" id="tp-chart" style="flex:none;height:calc(100% - 52px - 44px);overflow-y:auto;">
+      <iframe id="dkChart" src="" title="Chart" allowtransparency="true" style="width:100%;height:60%;min-height:300px;border:none;display:block;"></iframe>
       <div id="dkCommunity"></div>
     </div>
   </div>
@@ -382,16 +377,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     <div class="mob-tabs">
       <button class="mob-tab on" onclick="mobTab('chart',this)">Chart</button>
       <button class="mob-tab" onclick="mobTab('news',this)">News</button>
-      <button class="mob-tab" onclick="mobTab('community',this)">Community</button>
     </div>
     <div class="mob-tab-pane on" id="mob-tp-chart">
       <div class="mob-chart-wrap"><iframe id="mobChart" src="" title="Chart" allowtransparency="true"></iframe></div>
+      <div style="padding:10px 14px 6px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);">
+        <span style="font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);">Community</span>
+      </div>
+      <div id="mobCommunity"></div>
     </div>
     <div class="mob-tab-pane" id="mob-tp-news">
       <div id="mobNewsFeed"><div class="empty"><div class="dots"><span></span><span></span><span></span></div></div></div>
-    </div>
-    <div class="mob-tab-pane" id="mob-tp-community">
-      <div id="mobCommunity"></div>
     </div>
   </div>
 
@@ -538,8 +533,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (ev==='SIGNED_OUT') onSignOut();
   });
   renderAssets();
-  loadPrices();
-  setInterval(loadPrices, 15000);
+  loadPricesForTicker(); // fast first paint
+  setTimeout(loadPrices, 800); // full load slightly delayed
+  setInterval(loadPrices, 20000); // refresh every 20s instead of 15s
   selectAsset('USOIL');
   setupPWA();
   if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
@@ -654,12 +650,7 @@ function mobTab(t,btn){
   if(btn) btn.classList.add('on');
   document.getElementById('mob-tp-'+t).classList.add('on');
 }
-function dkTab(t,btn){
-  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('on'));
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('tp-'+t).classList.add('on');
-}
+// dkTab removed — community now below chart
 
 // SELECT ASSET
 function selectAsset(s){
@@ -701,6 +692,20 @@ function setHeaderPrice(p,t){
 }
 
 // PRICES
+async function loadPricesForTicker(){
+  // Load only ticker symbols first for fast initial render
+  const tickerSyms=['USOIL','GOLD','BTCUSD','ETHUSD','SOLUSD','AAPL','NVDA','TSLA','META','MSFT','GOOGL','SPY'];
+  await Promise.allSettled(tickerSyms.map(async s=>{
+    const a=AM[s]; if(!a)return;
+    try{
+      const r=await fetch(`${API}/api/quote?symbol=${encodeURIComponent(a.fh)}`);
+      const d=await r.json();
+      if(d.c&&d.c>0){ prices[a.s]=d; applyPrice(a.s,d); if(cur?.s===a.s) setHeaderPrice(d,a.t); }
+    }catch(e){}
+  }));
+  buildTicker();
+}
+
 async function loadPrices(){
   const all=Object.values(AM);
   // fetch in batches of 6 to avoid rate limiting and reduce lag
@@ -818,28 +823,28 @@ function postsHtml(posts,s){
   return posts.map(p=>postHtml(p,s)).join('');
 }
 function postHtml(p,s){
-  const myVote=votes[p.id]||0;
+  const mv=votes[p.id]||0;
   const score=(p.upvotes||0)-(p.downvotes||0);
-  const scoreClass=score>0?'pos':score<0?'neg':'';
-  const initials=p.username.slice(0,2).toUpperCase();
-  const replyCount=p.community_replies?.[0]?.count||0;
+  const sc=score>0?'pos':score<0?'neg':'';
+  const ini=p.username.slice(0,2).toUpperCase();
+  const rc=p.community_replies?.[0]?.count||0;
   return`<div class="post-card" id="pc-${p.id}">
-    <div class="post-votes">
-      <button class="vote-btn ${myVote===1?'up-on':''}" onclick="vote('${p.id}',1,'${s}')" title="Upvote">▲</button>
-      <span class="vote-score ${scoreClass}" id="vs-${p.id}">${score}</span>
-      <button class="vote-btn ${myVote===-1?'dn-on':''}" onclick="vote('${p.id}',-1,'${s}')" title="Downvote">▼</button>
-    </div>
     <div class="post-body">
       <div class="post-meta">
-        <div class="post-av">${initials}</div>
+        <div class="post-av">${ini}</div>
         <span class="post-user">${p.username}</span>
         <span class="post-time">${ago(new Date(p.created_at).getTime()/1000)}</span>
       </div>
       <div class="post-text">${esc(p.content)}</div>
       <div class="post-actions">
+        <div class="vpill" id="vp-${p.id}">
+          <button class="vpill-up ${mv===1?'on':''}" onclick="vote('${p.id}',1,'${s}')">↑</button>
+          <span class="vpill-score ${sc}" id="vs-${p.id}">${score}</span>
+          <button class="vpill-dn ${mv===-1?'on':''}" onclick="vote('${p.id}',-1,'${s}')">↓</button>
+        </div>
         <button class="post-action-btn" onclick="toggleReplies('${p.id}','${s}')">
           <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          ${replyCount} ${replyCount===1?'Reply':'Replies'}
+          ${rc} ${rc===1?'Reply':'Replies'}
         </button>
       </div>
       <div class="replies-wrap" id="rw-${p.id}" style="display:none;"></div>
@@ -849,36 +854,33 @@ function postHtml(p,s){
 
 async function vote(postId,dir,s){
   const prev=votes[postId]||0;
-  // toggle off if same direction
-  const newDir=prev===dir?0:dir;
+  const newDir=prev===dir?0:dir; // toggle off if same
   votes[postId]=newDir;
   localStorage.setItem('sv',JSON.stringify(votes));
-  // optimistic UI
-  const p=await getPostScore(postId);
-  document.querySelectorAll(`#vs-${postId}`).forEach(el=>{
-    const sc=(p||0);
-    el.textContent=sc; el.className='vote-score '+(sc>0?'pos':sc<0?'neg':'');
-  });
-  const upBtn=document.querySelector(`#pc-${postId} .vote-btn[title="Upvote"]`);
-  const dnBtn=document.querySelector(`#pc-${postId} .vote-btn[title="Downvote"]`);
-  if(upBtn) upBtn.className='vote-btn '+(newDir===1?'up-on':'');
-  if(dnBtn) dnBtn.className='vote-btn '+(newDir===-1?'dn-on':'');
-  // send to server
-  try{
-    await fetch(`${API}/api/community?action=vote`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({post_id:postId,direction:newDir,prev_direction:prev}),
-    });
-  }catch(e){}
-}
 
-async function getPostScore(postId){
-  try{
-    const r=await fetch(`${API}/api/community?action=posts&sym=${cur?.s||''}`);
-    const posts=await r.json();
-    const p=posts.find(x=>x.id===postId);
-    return p?(p.upvotes||0)-(p.downvotes||0):null;
-  }catch{return null;}
+  // optimistic score update
+  const scoreEl=document.getElementById('vs-'+postId);
+  if(scoreEl){
+    const cur_score=parseInt(scoreEl.textContent)||0;
+    let delta=0;
+    if(prev===1) delta--; // remove old upvote
+    if(prev===-1) delta++; // remove old downvote
+    if(newDir===1) delta++; // add upvote
+    if(newDir===-1) delta--; // add downvote
+    const ns=cur_score+delta;
+    scoreEl.textContent=ns;
+    scoreEl.className='vpill-score '+(ns>0?'pos':ns<0?'neg':'');
+  }
+
+  // update button states
+  document.querySelectorAll(`#vp-${postId} .vpill-up`).forEach(b=>b.className='vpill-up '+(newDir===1?'on':''));
+  document.querySelectorAll(`#vp-${postId} .vpill-dn`).forEach(b=>b.className='vpill-dn '+(newDir===-1?'on':''));
+
+  // send to server (fire and forget)
+  fetch(`${API}/api/community?action=vote`,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({post_id:postId,direction:newDir,prev_direction:prev}),
+  }).catch(()=>{});
 }
 
 async function submitPost(s){
