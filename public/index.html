@@ -837,9 +837,9 @@ function postHtml(p,s){
       </div>
       <div class="post-text">${esc(p.content)}</div>
       <div class="post-actions">
-        <div class="vpill" id="vp-${p.id}">
+        <div class="vpill" data-post="${p.id}">
           <button class="vpill-up ${mv===1?'on':''}" onclick="vote('${p.id}',1,'${s}');return false;">↑</button>
-          <span class="vpill-score ${sc}" id="vs-${p.id}">${score}</span>
+          <span class="vpill-score ${sc}" data-post="${p.id}">${score}</span>
           <button class="vpill-dn ${mv===-1?'on':''}" onclick="vote('${p.id}',-1,'${s}');return false;">↓</button>
         </div>
         <button class="post-action-btn" onclick="toggleReplies('${p.id}','${s}')">
@@ -858,27 +858,23 @@ function vote(postId, dir, s) {
   votes[postId] = newDir;
   localStorage.setItem('sv', JSON.stringify(votes));
 
-  // score update
-  const scoreEl = document.getElementById('vs-' + postId);
-  if (scoreEl) {
-    let delta = 0;
-    if (prev === 1)    delta--;
-    if (prev === -1)   delta++;
-    if (newDir === 1)  delta++;
-    if (newDir === -1) delta--;
-    const ns = (parseInt(scoreEl.textContent) || 0) + delta;
-    scoreEl.textContent = ns;
-    scoreEl.className = 'vpill-score' + (ns > 0 ? ' pos' : ns < 0 ? ' neg' : '');
-  }
-
-  // button state — use getElementById on pill, then find children
-  const pill = document.getElementById('vp-' + postId);
-  if (pill) {
+  // update ALL pills with this postId (desktop + mobile both in DOM)
+  document.querySelectorAll('.vpill[data-post="' + postId + '"]').forEach(pill => {
     const upBtn = pill.querySelector('.vpill-up');
     const dnBtn = pill.querySelector('.vpill-dn');
     if (upBtn) upBtn.className = 'vpill-up' + (newDir === 1  ? ' on' : '');
     if (dnBtn) dnBtn.className = 'vpill-dn' + (newDir === -1 ? ' on' : '');
-  }
+  });
+  // update ALL score spans
+  document.querySelectorAll('.vpill-score[data-post="' + postId + '"]').forEach(el => {
+    const ns = (parseInt(el.textContent) || 0) + (()=>{
+      let d=0;
+      if(prev===1)d--;if(prev===-1)d++;if(newDir===1)d++;if(newDir===-1)d--;
+      return d;
+    })();
+    el.textContent = ns;
+    el.className = 'vpill-score' + (ns > 0 ? ' pos' : ns < 0 ? ' neg' : '');
+  });
 
   // server (fire and forget)
   fetch(API + '/api/community?action=vote', {
