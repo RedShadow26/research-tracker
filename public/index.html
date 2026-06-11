@@ -838,9 +838,9 @@ function postHtml(p,s){
       <div class="post-text">${esc(p.content)}</div>
       <div class="post-actions">
         <div class="vpill" id="vp-${p.id}">
-          <button class="vpill-up ${mv===1?'on':''}" data-pid="${p.id}" data-dir="1" data-sym="${s}">↑</button>
+          <button class="vpill-up ${mv===1?'on':''}" onclick="vote('${p.id}',1,'${s}');return false;">↑</button>
           <span class="vpill-score ${sc}" id="vs-${p.id}">${score}</span>
-          <button class="vpill-dn ${mv===-1?'on':''}" data-pid="${p.id}" data-dir="-1" data-sym="${s}">↓</button>
+          <button class="vpill-dn ${mv===-1?'on':''}" onclick="vote('${p.id}',-1,'${s}');return false;">↓</button>
         </div>
         <button class="post-action-btn" onclick="toggleReplies('${p.id}','${s}')">
           <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -852,46 +852,41 @@ function postHtml(p,s){
   </div>`;
 }
 
-function vote(postId,dir,s){
-  const prev=votes[postId]||0;
-  const newDir=prev===dir?0:dir;
-  votes[postId]=newDir;
-  localStorage.setItem('sv',JSON.stringify(votes));
+function vote(postId, dir, s) {
+  const prev = votes[postId] || 0;
+  const newDir = (prev === dir) ? 0 : dir;
+  votes[postId] = newDir;
+  localStorage.setItem('sv', JSON.stringify(votes));
 
-  // update score
-  const scoreEl=document.getElementById('vs-'+postId);
-  if(scoreEl){
-    let delta=0;
-    if(prev===1) delta--;
-    if(prev===-1) delta++;
-    if(newDir===1) delta++;
-    if(newDir===-1) delta--;
-    const ns=(parseInt(scoreEl.textContent)||0)+delta;
-    scoreEl.textContent=ns;
-    scoreEl.className='vpill-score '+(ns>0?'pos':ns<0?'neg':'');
+  // score update
+  const scoreEl = document.getElementById('vs-' + postId);
+  if (scoreEl) {
+    let delta = 0;
+    if (prev === 1)    delta--;
+    if (prev === -1)   delta++;
+    if (newDir === 1)  delta++;
+    if (newDir === -1) delta--;
+    const ns = (parseInt(scoreEl.textContent) || 0) + delta;
+    scoreEl.textContent = ns;
+    scoreEl.className = 'vpill-score' + (ns > 0 ? ' pos' : ns < 0 ? ' neg' : '');
   }
 
-  // update buttons — find all instances (desktop + mobile both render)
-  document.querySelectorAll(`[id="vp-${postId}"] .vpill-up`).forEach(b=>{b.className='vpill-up'+(newDir===1?' on':'');});
-  document.querySelectorAll(`[id="vp-${postId}"] .vpill-dn`).forEach(b=>{b.className='vpill-dn'+(newDir===-1?' on':'');});
+  // button state — use getElementById on pill, then find children
+  const pill = document.getElementById('vp-' + postId);
+  if (pill) {
+    const upBtn = pill.querySelector('.vpill-up');
+    const dnBtn = pill.querySelector('.vpill-dn');
+    if (upBtn) upBtn.className = 'vpill-up' + (newDir === 1  ? ' on' : '');
+    if (dnBtn) dnBtn.className = 'vpill-dn' + (newDir === -1 ? ' on' : '');
+  }
 
-  // server fire-and-forget
-  fetch(`${API}/api/community?action=vote`,{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({post_id:postId,direction:newDir,prev_direction:prev}),
-  }).catch(()=>{});
+  // server (fire and forget)
+  fetch(API + '/api/community?action=vote', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({post_id: postId, direction: newDir, prev_direction: prev}),
+  }).catch(() => {});
 }
-
-// Event delegation for vote buttons — works on both touch and mouse
-document.addEventListener('pointerdown', function(e){
-  const btn = e.target.closest('.vpill-up, .vpill-dn');
-  if (!btn) return;
-  e.preventDefault();
-  const pid = btn.dataset.pid;
-  const dir = parseInt(btn.dataset.dir);
-  const sym = btn.dataset.sym;
-  if (pid && dir && sym) vote(pid, dir, sym);
-}, {passive:false});
 
 async function submitPost(s){
   if(!user){openAuth();return;}
