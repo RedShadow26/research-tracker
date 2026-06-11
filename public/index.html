@@ -216,8 +216,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .post-votes{display:none;}
 .post-body{flex:1;padding:12px 14px;min-width:0;}
 /* vote pill */
-.vpill{display:inline-flex;align-items:center;height:30px;border:1px solid var(--border2);border-radius:6px;overflow:hidden;background:var(--surface3);user-select:none;}
-.vpill-up,.vpill-dn{display:flex;align-items:center;justify-content:center;width:40px;height:100%;background:none;border:none;cursor:pointer;font-size:15px;color:var(--text3);transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.vpill{display:inline-flex;align-items:center;height:34px;border:1px solid var(--border2);border-radius:6px;overflow:hidden;background:var(--surface3);user-select:none;}
+.vpill-up,.vpill-dn{display:flex;align-items:center;justify-content:center;width:44px;height:100%;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;}
 .vpill-up:hover{background:rgba(245,158,11,.15);color:var(--amber);}
 .vpill-dn:hover{background:rgba(96,165,250,.15);color:var(--blue);}
 .vpill-up.on{background:rgba(245,158,11,.18);color:var(--amber);}
@@ -838,9 +838,9 @@ function postHtml(p,s){
       <div class="post-text">${esc(p.content)}</div>
       <div class="post-actions">
         <div class="vpill" id="vp-${p.id}">
-          <button class="vpill-up ${mv===1?'on':''}" onclick="vote('${p.id}',1,'${s}')">↑</button>
+          <button class="vpill-up ${mv===1?'on':''}" data-pid="${p.id}" data-dir="1" data-sym="${s}">↑</button>
           <span class="vpill-score ${sc}" id="vs-${p.id}">${score}</span>
-          <button class="vpill-dn ${mv===-1?'on':''}" onclick="vote('${p.id}',-1,'${s}')">↓</button>
+          <button class="vpill-dn ${mv===-1?'on':''}" data-pid="${p.id}" data-dir="-1" data-sym="${s}">↓</button>
         </div>
         <button class="post-action-btn" onclick="toggleReplies('${p.id}','${s}')">
           <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -852,36 +852,46 @@ function postHtml(p,s){
   </div>`;
 }
 
-async function vote(postId,dir,s){
+function vote(postId,dir,s){
   const prev=votes[postId]||0;
-  const newDir=prev===dir?0:dir; // toggle off if same
+  const newDir=prev===dir?0:dir;
   votes[postId]=newDir;
   localStorage.setItem('sv',JSON.stringify(votes));
 
-  // optimistic score update
+  // update score
   const scoreEl=document.getElementById('vs-'+postId);
   if(scoreEl){
-    const cur_score=parseInt(scoreEl.textContent)||0;
     let delta=0;
-    if(prev===1) delta--; // remove old upvote
-    if(prev===-1) delta++; // remove old downvote
-    if(newDir===1) delta++; // add upvote
-    if(newDir===-1) delta--; // add downvote
-    const ns=cur_score+delta;
+    if(prev===1) delta--;
+    if(prev===-1) delta++;
+    if(newDir===1) delta++;
+    if(newDir===-1) delta--;
+    const ns=(parseInt(scoreEl.textContent)||0)+delta;
     scoreEl.textContent=ns;
     scoreEl.className='vpill-score '+(ns>0?'pos':ns<0?'neg':'');
   }
 
-  // update button states
-  document.querySelectorAll(`#vp-${postId} .vpill-up`).forEach(b=>b.className='vpill-up '+(newDir===1?'on':''));
-  document.querySelectorAll(`#vp-${postId} .vpill-dn`).forEach(b=>b.className='vpill-dn '+(newDir===-1?'on':''));
+  // update buttons — find all instances (desktop + mobile both render)
+  document.querySelectorAll(`[id="vp-${postId}"] .vpill-up`).forEach(b=>{b.className='vpill-up'+(newDir===1?' on':'');});
+  document.querySelectorAll(`[id="vp-${postId}"] .vpill-dn`).forEach(b=>{b.className='vpill-dn'+(newDir===-1?' on':'');});
 
-  // send to server (fire and forget)
+  // server fire-and-forget
   fetch(`${API}/api/community?action=vote`,{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({post_id:postId,direction:newDir,prev_direction:prev}),
   }).catch(()=>{});
 }
+
+// Event delegation for vote buttons — works on both touch and mouse
+document.addEventListener('pointerdown', function(e){
+  const btn = e.target.closest('.vpill-up, .vpill-dn');
+  if (!btn) return;
+  e.preventDefault();
+  const pid = btn.dataset.pid;
+  const dir = parseInt(btn.dataset.dir);
+  const sym = btn.dataset.sym;
+  if (pid && dir && sym) vote(pid, dir, sym);
+}, {passive:false});
 
 async function submitPost(s){
   if(!user){openAuth();return;}
