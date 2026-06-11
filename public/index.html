@@ -195,7 +195,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .mob-tab.on{color:var(--text);border-bottom-color:var(--text);}
 .mob-tab-pane{display:none;}
 .mob-tab-pane.on{display:block;}
-.mob-chart-wrap{height:56vw;min-height:220px;max-height:320px;}
+.mob-chart-wrap{height:300px;}
 .mob-chart-wrap iframe{width:100%;height:100%;border:none;display:block;}
 
 /* ─── COMMUNITY ─── */
@@ -702,13 +702,18 @@ function setHeaderPrice(p,t){
 
 // PRICES
 async function loadPrices(){
-  await Promise.allSettled(Object.values(AM).map(async a=>{
-    try{
-      const r=await fetch(`${API}/api/quote?symbol=${encodeURIComponent(a.fh)}`);
-      const d=await r.json();
-      if(d.c&&d.c>0){ prices[a.s]=d; applyPrice(a.s,d); if(cur?.s===a.s) setHeaderPrice(d,a.t); }
-    }catch(e){}
-  }));
+  const all=Object.values(AM);
+  // fetch in batches of 6 to avoid rate limiting and reduce lag
+  for(let i=0;i<all.length;i+=6){
+    const batch=all.slice(i,i+6);
+    await Promise.allSettled(batch.map(async a=>{
+      try{
+        const r=await fetch(`${API}/api/quote?symbol=${encodeURIComponent(a.fh)}`);
+        const d=await r.json();
+        if(d.c&&d.c>0){ prices[a.s]=d; applyPrice(a.s,d); if(cur?.s===a.s) setHeaderPrice(d,a.t); }
+      }catch(e){}
+    }));
+  }
   buildTicker();
 }
 function fmt(v,t){
@@ -820,9 +825,9 @@ function postHtml(p,s){
   const replyCount=p.community_replies?.[0]?.count||0;
   return`<div class="post-card" id="pc-${p.id}">
     <div class="post-votes">
-      <button class="vote-btn ${myVote===1?'up-on':''}" onclick="vote('${p.id}',1,'${s}')">▲</button>
+      <button class="vote-btn ${myVote===1?'up-on':''}" onclick="vote('${p.id}',1,'${s}')" title="Upvote">▲</button>
       <span class="vote-score ${scoreClass}" id="vs-${p.id}">${score}</span>
-      <button class="vote-btn ${myVote===-1?'dn-on':''}" onclick="vote('${p.id}',-1,'${s}')">▼</button>
+      <button class="vote-btn ${myVote===-1?'dn-on':''}" onclick="vote('${p.id}',-1,'${s}')" title="Downvote">▼</button>
     </div>
     <div class="post-body">
       <div class="post-meta">
@@ -854,9 +859,10 @@ async function vote(postId,dir,s){
     const sc=(p||0);
     el.textContent=sc; el.className='vote-score '+(sc>0?'pos':sc<0?'neg':'');
   });
-  document.querySelectorAll(`#pc-${postId} .vote-btn`).forEach((btn,i)=>{
-    const d=i===0?1:-1; btn.className='vote-btn '+(newDir===d?(d===1?'up-on':'dn-on'):'');
-  });
+  const upBtn=document.querySelector(`#pc-${postId} .vote-btn[title="Upvote"]`);
+  const dnBtn=document.querySelector(`#pc-${postId} .vote-btn[title="Downvote"]`);
+  if(upBtn) upBtn.className='vote-btn '+(newDir===1?'up-on':'');
+  if(dnBtn) dnBtn.className='vote-btn '+(newDir===-1?'dn-on':'');
   // send to server
   try{
     await fetch(`${API}/api/community?action=vote`,{
