@@ -622,10 +622,6 @@ async function loadNews() {
   const feed = document.getElementById('newsFeed');
   feed.innerHTML = '<div class="empty-feed"><div class="dots"><span></span><span></span><span></span></div><span>Loading...</span></div>';
   document.getElementById('npCount').textContent = '—';
-  document.getElementById('aiBadge').textContent = '—';
-  document.getElementById('aiBadge').className = 'ai-badge loading';
-  document.getElementById('aiBody').innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
-  document.getElementById('aiCatalyst').style.display = 'none';
   document.getElementById('newsSearch').value = '';
 
   const info = FH_NEWS[current.sym];
